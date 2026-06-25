@@ -6,8 +6,8 @@
 <title>2KDesign Patras — Digital Bridges</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+html,body{width:100%;min-height:100%;overflow-x:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
 
 /* ── LOADING ── */
 #load{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.8s}
@@ -475,7 +475,7 @@ void main(){
 
   /* tone + gamma */
   col=col/(col+.52);
-  col=pow(max(col,vec3(0.)),.vec3(.44));
+  col=pow(max(col,vec3(0.)),vec3(.44));
 
   gl_FragColor=vec4(col,1.);
 }`;
