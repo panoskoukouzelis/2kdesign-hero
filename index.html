@@ -3,205 +3,236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2KDesign Patras — Digital Bridges</title>
+<title>2KDesign Patras</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;min-height:100%;overflow-x:hidden;background:#000;font-family:'Segoe UI',system-ui,sans-serif}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+html{scroll-behavior:auto}
+body{background:#000;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
 
-/* ── LOADING ── */
-#load{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.8s}
-#load.out{opacity:0;pointer-events:none}
-.ll{font-size:2.8rem;font-weight:900;letter-spacing:-2px;color:#fff;margin-bottom:2.8rem}
-.ll b{color:#00f0ff}
-.lbar{width:260px;height:1px;background:rgba(255,255,255,0.06)}
-.lbar-fill{height:100%;width:0%;background:linear-gradient(90deg,#00f0ff,#0050ff);transition:width .12s linear}
-.ltxt{font-family:monospace;font-size:.6rem;letter-spacing:3px;color:rgba(255,255,255,0.2);margin-top:1.2rem}
+/* Tall scroll container — drives the camera */
+#scroll-driver{height:600vh;position:relative}
 
-/* ── UI OVERLAY ── */
+/* Canvas fixed full screen */
+#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+
+/* All UI fixed on top */
 #ui{position:fixed;inset:0;z-index:10;pointer-events:none}
 
+/* ── LOADING ── */
+#load{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.5s}
+#load.out{opacity:0;pointer-events:none}
+.ll{font-size:2.5rem;font-weight:900;letter-spacing:-1px;color:#fff;margin-bottom:2.5rem}
+.ll b{color:#00f0ff}
+.lbar{width:240px;height:1px;background:rgba(255,255,255,.06)}
+.lfill{height:100%;width:0;background:linear-gradient(90deg,#00f0ff,#0050ff);transition:width .15s}
+.ltxt{font-family:monospace;font-size:.58rem;letter-spacing:3px;color:rgba(255,255,255,.2);margin-top:1rem}
+
 /* ── NAV ── */
-nav{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:1.4rem 3rem;opacity:0;transform:translateY(-10px);transition:opacity 1.2s,transform 1.2s}
-nav.show{opacity:1;transform:translateY(0)}
-.logo{font-size:1rem;font-weight:900;letter-spacing:3px;color:#fff;text-transform:uppercase}
+nav{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:1.4rem 2.5rem;opacity:0;transition:opacity 1s .5s}
+nav.show{opacity:1}
+.logo{font-size:.95rem;font-weight:900;letter-spacing:3px;color:#fff}
 .logo b{color:#00f0ff}
-.nav-links{display:flex;gap:2.5rem}
-.nav-links a{color:rgba(255,255,255,0.3);text-decoration:none;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;transition:color .2s;pointer-events:all}
-.nav-links a:hover{color:#00f0ff}
-.nav-cta{pointer-events:all;cursor:pointer;background:transparent;border:.5px solid rgba(0,240,255,0.4);color:#00f0ff;padding:.45rem 1.2rem;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;transition:all .2s}
+.nav-r{display:flex;align-items:center;gap:2rem}
+.nav-r a{color:rgba(255,255,255,.3);text-decoration:none;font-size:.7rem;letter-spacing:2px;text-transform:uppercase;pointer-events:all;transition:color .2s}
+.nav-r a:hover{color:#00f0ff}
+.nav-cta{pointer-events:all;background:transparent;border:.5px solid rgba(0,240,255,.35);color:#00f0ff;padding:.4rem 1rem;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .nav-cta:hover{background:#00f0ff;color:#000}
 
-/* ── HERO TEXT ── */
-#hero{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;opacity:0;transition:opacity 2s}
-#hero.show{opacity:1}
-.pre-label{font-size:.58rem;letter-spacing:5px;text-transform:uppercase;color:rgba(0,240,255,0.45);margin-bottom:2rem;font-family:monospace}
-#morph-wrap{position:relative;margin-bottom:1.8rem}
-#morph-text{font-size:clamp(3.5rem,9vw,8.5rem);font-weight:900;letter-spacing:-4px;line-height:.9;color:#fff;display:block;min-height:1em}
-#morph-text .hl{color:#00f0ff}
-#morph-sub{font-size:clamp(1.5rem,3.5vw,3rem);font-weight:900;letter-spacing:-2px;color:rgba(255,255,255,0.18);display:block;margin-top:.3rem}
-.tagline{font-size:.72rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:3rem}
-.ctas{display:flex;gap:1.2rem;justify-content:center;pointer-events:all}
-.cta-p{background:linear-gradient(135deg,#00f0ff,#0050ff);color:#000;border:none;padding:.95rem 2.6rem;font-size:.75rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
-.cta-p:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(0,240,255,0.35)}
-.cta-g{background:transparent;color:rgba(255,255,255,0.35);border:.5px solid rgba(255,255,255,0.12);padding:.95rem 2.6rem;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)}
-.cta-g:hover{border-color:#00f0ff;color:#00f0ff}
+/* ── SECTION LABELS (fade in/out based on scroll) ── */
+.scene-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+  opacity:0;transition:opacity .8s;
+}
+.scene-label.active{opacity:1}
+
+/* SCENE 0 — intro */
+#lbl-0 .pre{font-size:.6rem;letter-spacing:5px;text-transform:uppercase;color:rgba(0,240,255,.5);font-family:monospace;margin-bottom:1.5rem}
+#lbl-0 h1{font-size:clamp(3rem,8vw,7rem);font-weight:900;letter-spacing:-3px;line-height:.92;color:#fff}
+#lbl-0 h1 b{color:#00f0ff;display:block}
+#lbl-0 .sub{font-size:.72rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-top:1.5rem}
+
+/* SCENE 1 — approach */
+#lbl-1{bottom:auto;top:20%}
+#lbl-1 .chip{display:inline-block;border:.5px solid rgba(0,240,255,.3);color:rgba(0,240,255,.6);font-size:.6rem;letter-spacing:3px;padding:.3rem .9rem;font-family:monospace;margin-bottom:1rem}
+#lbl-1 h2{font-size:clamp(2rem,5vw,4rem);font-weight:900;letter-spacing:-2px;color:#fff}
+
+/* SCENE 2 — on the bridge */
+#lbl-2{top:15%}
+#lbl-2 p{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,.45);font-family:monospace;margin-bottom:.8rem}
+#lbl-2 h2{font-size:clamp(2rem,4vw,3.5rem);font-weight:900;color:#fff;letter-spacing:-2px}
+#lbl-2 h2 b{color:#00f0ff}
+
+/* SCENE 3 — code morph */
+#lbl-3{top:12%}
+#lbl-3 p{font-size:.6rem;letter-spacing:3px;color:rgba(0,240,255,.4);font-family:monospace;margin-bottom:.8rem}
+#lbl-3 h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;color:#fff;letter-spacing:-1px}
+
+/* ── SCROLL HINT ── */
+#sh{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);text-align:center;font-size:.55rem;letter-spacing:3px;color:rgba(255,255,255,.15);opacity:0;transition:opacity 1s 1s}
+#sh.show{opacity:1}
+.shl{width:1px;height:36px;background:linear-gradient(to bottom,#00f0ff,transparent);margin:.5rem auto 0;animation:shlp 2s ease-in-out infinite}
+@keyframes shlp{0%,100%{opacity:.15;transform:scaleY(.5)}50%{opacity:.9;transform:scaleY(1)}}
+
+/* ── PROJECTS SECTION ── */
+#projects{
+  position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,#000 60%,transparent);
+  padding:2rem 2.5rem 1.5rem;
+  opacity:0;transition:opacity .8s;
+  pointer-events:none;
+  z-index:10;
+}
+#projects.show{opacity:1;pointer-events:all}
+#projects h3{font-size:.6rem;letter-spacing:4px;text-transform:uppercase;color:rgba(0,240,255,.5);font-family:monospace;margin-bottom:1rem}
+.proj-strip{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:none}
+.proj-strip::-webkit-scrollbar{display:none}
+.proj-card{
+  flex:0 0 200px;
+  background:rgba(255,255,255,.03);
+  border:.5px solid rgba(255,255,255,.08);
+  border-radius:4px;padding:1.2rem;
+  cursor:pointer;transition:all .2s;pointer-events:all;
+}
+.proj-card:hover{border-color:rgba(0,240,255,.4);background:rgba(0,240,255,.04);transform:translateY(-3px)}
+.proj-num{font-family:monospace;font-size:.55rem;color:rgba(0,240,255,.4);letter-spacing:2px;margin-bottom:.6rem}
+.proj-name{font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+.proj-type{font-size:.7rem;color:rgba(255,255,255,.3);letter-spacing:1px}
+.proj-bar{height:1px;background:linear-gradient(90deg,#00f0ff,transparent);margin-top:.8rem;width:0;transition:width .3s}
+.proj-card:hover .proj-bar{width:100%}
 
 /* ── HUD ── */
-.hud{position:absolute;font-family:monospace;font-size:.55rem;letter-spacing:1.5px;color:rgba(0,240,255,0.22);line-height:2.2;opacity:0;transition:opacity 2s}
-.hud.show{opacity:1}
-.hud b{color:rgba(0,240,255,.6)}
-#htl{top:5.5rem;left:3rem}
-#htr{top:5.5rem;right:3rem;text-align:right}
-#hbl{bottom:2.8rem;left:3rem}
-#hbr{bottom:2.8rem;right:3rem;text-align:right}
+#hud{position:absolute;bottom:2rem;right:2rem;font-family:monospace;font-size:.55rem;letter-spacing:1.5px;color:rgba(0,240,255,.2);line-height:2.2;text-align:right;opacity:0;transition:opacity 1s .8s}
+#hud.show{opacity:1}
+#hud b{color:rgba(0,240,255,.5)}
 
-/* ── CORNER BRACKETS ── */
-.brk{position:absolute;width:18px;height:18px;opacity:0;transition:opacity 2s}
+/* Corner brackets */
+.brk{position:absolute;width:16px;height:16px;opacity:0;transition:opacity 1s .8s}
 .brk.show{opacity:1}
-#btl{top:2.8rem;left:2.8rem;border-top:.5px solid rgba(0,240,255,.35);border-left:.5px solid rgba(0,240,255,.35)}
-#btr{top:2.8rem;right:2.8rem;border-top:.5px solid rgba(0,240,255,.35);border-right:.5px solid rgba(0,240,255,.35)}
-#bbl{bottom:2.2rem;left:2.8rem;border-bottom:.5px solid rgba(0,240,255,.35);border-left:.5px solid rgba(0,240,255,.35)}
-#bbr{bottom:2.2rem;right:2.8rem;border-bottom:.5px solid rgba(0,240,255,.35);border-right:.5px solid rgba(0,240,255,.35)}
-
-/* ── SCROLL ── */
-#sh{position:absolute;bottom:2.8rem;left:50%;transform:translateX(-50%);text-align:center;font-size:.52rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.12);opacity:0;transition:opacity 2s}
-#sh.show{opacity:1}
-.shl{width:1px;height:38px;background:linear-gradient(to bottom,#00f0ff,transparent);margin:.5rem auto 0;animation:shlp 2s ease-in-out infinite}
-@keyframes shlp{0%,100%{opacity:.1;transform:scaleY(.5)}50%{opacity:.9;transform:scaleY(1)}}
+#btl{top:2.5rem;left:2.5rem;border-top:.5px solid rgba(0,240,255,.3);border-left:.5px solid rgba(0,240,255,.3)}
+#btr{top:2.5rem;right:2.5rem;border-top:.5px solid rgba(0,240,255,.3);border-right:.5px solid rgba(0,240,255,.3)}
 </style>
 </head>
 <body>
 
 <div id="load">
   <div class="ll"><b>2K</b>DESIGN</div>
-  <div class="lbar"><div class="lbar-fill" id="lfill"></div></div>
-  <div class="ltxt" id="ltxt">INITIALIZING</div>
+  <div class="lbar"><div class="lfill" id="lf"></div></div>
+  <div class="ltxt" id="lt">BOOT</div>
 </div>
 
 <canvas id="c"></canvas>
 
-<div id="ui">
-  <div class="brk" id="btl"></div><div class="brk" id="btr"></div>
-  <div class="brk" id="bbl"></div><div class="brk" id="bbr"></div>
+<!-- tall div that drives scroll -->
+<div id="scroll-driver">
 
-  <nav id="nav">
-    <div class="logo"><b>2K</b>DESIGN PATRAS</div>
-    <div class="nav-links">
-      <a href="#">Υπηρεσίες</a><a href="#">Portfolio</a>
-      <a href="#">Σχετικά</a><a href="#">Επικοινωνία</a>
+  <div id="ui">
+    <div class="brk" id="btl"></div>
+    <div class="brk" id="btr"></div>
+
+    <nav id="nav">
+      <div class="logo"><b>2K</b>DESIGN PATRAS</div>
+      <div class="nav-r">
+        <a href="#">Υπηρεσίες</a>
+        <a href="#">Portfolio</a>
+        <a href="#">Επικοινωνία</a>
+        <button class="nav-cta">Προσφορά →</button>
+      </div>
+    </nav>
+
+    <!-- Scene 0: Hero -->
+    <div class="scene-label active" id="lbl-0">
+      <div class="pre">// Πάτρα · Web Agency · Est. 2009</div>
+      <h1>ΧΤΙΖΟΥΜΕ<b>ΨΗΦΙΑΚΕΣ</b>ΓΕΦΥΡΕΣ</h1>
+      <div class="sub">WordPress · WooCommerce · Custom Dev</div>
     </div>
-    <button class="nav-cta">Επικοινωνία →</button>
-  </nav>
 
-  <div id="hero">
-    <div class="pre-label">// Πάτρα · Web Agency · Est. 2009</div>
-    <div id="morph-wrap">
-      <span id="morph-text">DIGITAL</span>
-      <span id="morph-sub">BRIDGES</span>
+    <!-- Scene 1: Approach -->
+    <div class="scene-label" id="lbl-1">
+      <div class="chip">// APPROACHING STRUCTURE</div>
+      <h2>15 χρόνια<br>ψηφιακής<br>κατασκευής</h2>
     </div>
-    <div class="tagline">WordPress · WooCommerce · Custom Development</div>
-    <div class="ctas">
-      <button class="cta-p">Ξεκινήστε το Project</button>
-      <button class="cta-g">Δείτε το Portfolio</button>
+
+    <!-- Scene 2: On bridge -->
+    <div class="scene-label" id="lbl-2">
+      <p>// ON THE BRIDGE</p>
+      <h2>Κάθε project<br>είναι μια<br><b>γέφυρα</b></h2>
+    </div>
+
+    <!-- Scene 3: Code morph -->
+    <div class="scene-label" id="lbl-3">
+      <p>// CODE IS THE STRUCTURE</p>
+      <h2>Από καλώδια<br>σε κώδικα</h2>
+    </div>
+
+    <!-- Scroll hint -->
+    <div id="sh">SCROLL<div class="shl"></div></div>
+
+    <!-- HUD -->
+    <div id="hud">
+      RIO-ANTIRRIO<br>
+      <b id="hpos">0%</b> PROGRESS<br>
+      <b id="hfps">—</b> FPS
+    </div>
+
+    <!-- Projects panel -->
+    <div id="projects">
+      <h3>// Portfolio — Επιλεγμένα Projects</h3>
+      <div class="proj-strip" id="pstrip"></div>
     </div>
   </div>
 
-  <div class="hud" id="htl">
-    SYSTEM STATUS<br>
-    ENGINE: <b>WEBGL2</b><br>
-    MODE: <b>RENDER</b>
-  </div>
-  <div class="hud" id="htr">
-    RIO-ANTIRRIO<br>
-    38°19′N 21°46′E<br>
-    <b id="hfps">— FPS</b>
-  </div>
-  <div class="hud" id="hbl">
-    2KDESIGN PATRAS<br>
-    <b>2kdesignpatras.gr</b>
-  </div>
-  <div class="hud" id="hbr">
-    CABLES: <b id="hcab">—</b><br>
-    BUILD: <b id="hbld">—</b>
-  </div>
-
-  <div id="sh">Scroll<div class="shl"></div></div>
-</div>
+</div><!-- /scroll-driver -->
 
 <script>
 /* ============================================================
-   LOADING SEQUENCE
+   PROJECTS DATA
+============================================================ */
+const PROJECTS = [
+  {num:'01', name:'LesLimones.gr',   type:'WooCommerce + Mega Menu'},
+  {num:'02', name:'GetCozy.gr',      type:'Magento → WooCommerce'},
+  {num:'03', name:'FaceShop.gr',     type:'Flatsome + Bookly'},
+  {num:'04', name:'OneTouch.gr',     type:'Yukatel WooSync Plugin'},
+  {num:'05', name:'ChunkyButterfly', type:'WooCommerce Custom'},
+  {num:'06', name:'CretaForce.gr',   type:'Server & Migration'},
+  {num:'07', name:'Project Alpha',   type:'WordPress + Custom Plugin'},
+  {num:'08', name:'Project Beta',    type:'eShop + Meta Ads'},
+  {num:'09', name:'Project Gamma',   type:'WooCommerce + SEO'},
+  {num:'10', name:'2KDesign Patras', type:'Agency Site — You Are Here'},
+];
+
+const strip = document.getElementById('pstrip');
+PROJECTS.forEach(p => {
+  strip.innerHTML += `
+    <div class="proj-card">
+      <div class="proj-num">${p.num}</div>
+      <div class="proj-name">${p.name}</div>
+      <div class="proj-type">${p.type}</div>
+      <div class="proj-bar"></div>
+    </div>`;
+});
+
+/* ============================================================
+   LOADING
 ============================================================ */
 const STEPS=[
-  [8,'BOOT SEQUENCE'],[20,'WEBGL CONTEXT'],[35,'GLSL COMPILER'],
-  [50,'SCENE GEOMETRY'],[65,'PARTICLE ENGINE'],[80,'POST-PROCESSING'],
-  [92,'AUDIO SYNC'],[100,'ONLINE — READY'],
+  [10,'BOOT'],[25,'WEBGL'],[40,'SHADERS'],
+  [58,'GEOMETRY'],[72,'PARTICLES'],[88,'POST-FX'],[100,'ONLINE'],
 ];
 let si=0;
-const lfill=document.getElementById('lfill'),ltxt=document.getElementById('ltxt');
+const lf=document.getElementById('lf'), lt=document.getElementById('lt');
 function loadStep(){
   if(si>=STEPS.length){
     document.getElementById('load').classList.add('out');
-    setTimeout(()=>document.getElementById('load').style.display='none',1900);
-    ['nav','hero','htl','htr','hbl','hbr','sh','btl','btr','bbl','bbr'].forEach(id=>{
-      const el=document.getElementById(id); if(el) el.classList.add('show');
-    });
-    startMorph(); return;
+    setTimeout(()=>document.getElementById('load').style.display='none',1600);
+    ['nav','sh','hud','btl','btr'].forEach(id=>document.getElementById(id).classList.add('show'));
+    return;
   }
   const[p,t]=STEPS[si++];
-  lfill.style.width=p+'%'; ltxt.textContent=t;
-  setTimeout(loadStep,si===STEPS.length?700:230);
+  lf.style.width=p+'%'; lt.textContent=t;
+  setTimeout(loadStep, si===STEPS.length?600:200);
 }
 loadStep();
-
-/* ============================================================
-   TEXT MORPHING
-============================================================ */
-const PAIRS=[
-  {top:'DIGITAL',   sub:'BRIDGES'},
-  {top:'WE BUILD',  sub:'THE WEB'},
-  {top:'CUSTOM',    sub:'SOLUTIONS'},
-  {top:'FUTURE',    sub:'IS NOW'},
-  {top:'2KDESIGN',  sub:'PATRAS'},
-];
-const CYAN_TOP=new Set(['2KDESIGN','FUTURE']);
-const CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&Ψ∑Δ∞';
-let pairIdx=0;
-const morphEl=document.getElementById('morph-text');
-const morphSub=document.getElementById('morph-sub');
-
-function scrambleTo(el,target,cyan,onDone){
-  const len=target.length; let frame=0; const total=24;
-  const timer=setInterval(()=>{
-    frame++;
-    const prog=frame/total;
-    let out='';
-    for(let i=0;i<len;i++){
-      out += i<Math.floor(prog*len)
-        ? target[i]
-        : CHARS[Math.floor(Math.random()*CHARS.length)];
-    }
-    el.innerHTML=cyan?`<span class="hl">${out}</span>`:out;
-    if(frame>=total){
-      clearInterval(timer);
-      el.innerHTML=cyan?`<span class="hl">${target}</span>`:target;
-      if(onDone) setTimeout(onDone,2400);
-    }
-  },42);
-}
-
-function startMorph(){
-  function next(){
-    pairIdx=(pairIdx+1)%PAIRS.length;
-    const{top,sub}=PAIRS[pairIdx];
-    scrambleTo(morphEl,top,CYAN_TOP.has(top),null);
-    scrambleTo(morphSub,sub,false,next);
-  }
-  const{top,sub}=PAIRS[pairIdx];
-  scrambleTo(morphEl,top,CYAN_TOP.has(top),null);
-  scrambleTo(morphSub,sub,false,next);
-}
 
 /* ============================================================
    WEBGL ENGINE
@@ -209,33 +240,15 @@ function startMorph(){
 const canvas=document.getElementById('c');
 let W=window.innerWidth, H=window.innerHeight;
 const gl=canvas.getContext('webgl2')||canvas.getContext('webgl');
-canvas.width=W; canvas.height=H;
+canvas.width=W; canvas.height=H; gl.viewport(0,0,W,H);
 
-function glsl(type,src){
-  const s=gl.createShader(type);
-  gl.shaderSource(s,src); gl.compileShader(s);
-  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(s));
-  return s;
-}
-function prog(vs,fs){
-  const p=gl.createProgram();
-  gl.attachShader(p,glsl(gl.VERTEX_SHADER,vs));
-  gl.attachShader(p,glsl(gl.FRAGMENT_SHADER,fs));
-  gl.linkProgram(p); return p;
-}
-function buf(data,type=gl.ARRAY_BUFFER,usage=gl.STATIC_DRAW){
-  const b=gl.createBuffer();
-  gl.bindBuffer(type,b); gl.bufferData(type,data,usage); return b;
-}
-function setAttr(pr,name,size,b){
-  const loc=gl.getAttribLocation(pr,name); if(loc<0)return;
-  gl.bindBuffer(gl.ARRAY_BUFFER,b);
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0);
-}
-function ul(pr,name){return gl.getUniformLocation(pr,name)}
+function glsl(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(sh));return sh}
+function prog(vs,fs){const p=gl.createProgram();gl.attachShader(p,glsl(gl.VERTEX_SHADER,vs));gl.attachShader(p,glsl(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p}
+function makeBuf(d,t=gl.ARRAY_BUFFER,u=gl.STATIC_DRAW){const b=gl.createBuffer();gl.bindBuffer(t,b);gl.bufferData(t,d,u);return b}
+function setAttr(pr,name,size,b){const l=gl.getAttribLocation(pr,name);if(l<0)return;gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,gl.FLOAT,false,0,0)}
+function ul(pr,n){return gl.getUniformLocation(pr,n)}
 
-/* ── FRAMEBUFFER ── */
+/* ── FB ── */
 function makeFB(w,h){
   const fb=gl.createFramebuffer(),tex=gl.createTexture(),rb=gl.createRenderbuffer();
   gl.bindTexture(gl.TEXTURE_2D,tex);
@@ -262,14 +275,10 @@ const M={
   lookAt(ex,ey,ez,tx,ty,tz){
     let fx=tx-ex,fy=ty-ey,fz=tz-ez,l=Math.sqrt(fx*fx+fy*fy+fz*fz);
     fx/=l;fy/=l;fz/=l;
-    let rx=fy*0-fz*1,ry=fz*0-fx*0,rz=fx*1-fy*0; // cross(fwd, world_up=(0,1,0)) = (fz,0,-fx)... let's be explicit:
-    rx=-fz; ry=0; rz=fx;
-    l=Math.sqrt(rx*rx+ry*ry+rz*rz); if(l<.0001)l=1; rx/=l;ry/=l;rz/=l;
-    const ux=fy*rz-fz*ry, uy=fz*rx-fx*rz, uz=fx*ry-fy*rx;
-    return new Float32Array([
-      rx,ux,-fx,0, ry,uy,-fy,0, rz,uz,-fz,0,
-      -(rx*ex+ry*ey+rz*ez),-(ux*ex+uy*ey+uz*ez),-(-fx*ex-fy*ey-fz*ez),1
-    ]);
+    let rx=-fz,ry=0,rz=fx;
+    l=Math.sqrt(rx*rx+rz*rz); if(l<.0001)l=1; rx/=l;rz/=l;
+    const ux=fy*rz-fz*ry,uy=fz*rx-fx*rz,uz=fx*ry-fy*rx;
+    return new Float32Array([rx,ux,-fx,0,ry,uy,-fy,0,rz,uz,-fz,0,-(rx*ex+ry*ey+rz*ez),-(ux*ex+uy*ey+uz*ez),-(-fx*ex-fy*ey-fz*ez),1]);
   },
 };
 
@@ -277,121 +286,115 @@ const M={
    SHADERS
 ============================================================ */
 
-/* BG: Animated sci-fi grid + nebula + stars */
+/* BG — stars + grid + atmosphere */
 const BG_VS=`attribute vec2 a;varying vec2 v;void main(){v=a*.5+.5;gl_Position=vec4(a,0,1);}`;
 const BG_FS=`
 precision highp float;
 varying vec2 v;
-uniform float t;
+uniform float t,scroll;
 uniform vec2 res;
 
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5);}
-float noise(vec2 p){
-  vec2 i=floor(p),f=fract(p);
-  f=f*f*(3.-2.*f);
-  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
-}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
 
 void main(){
   vec2 uv=v;
+  vec3 col=vec3(0.,0.,.02);
 
-  /* ── deep space ── */
-  vec3 col=vec3(0.,0.,.018);
-  vec2 c=uv-.5;
-  col+=vec3(0.,.015,.06)*smoothstep(.9,.0,length(c));
+  /* atmosphere glow near horizon */
+  float horizon=.5+scroll*.1;
+  float atmo=smoothstep(horizon+.15,horizon-.05,uv.y);
+  col+=vec3(0.,.04,.15)*atmo;
+  col+=vec3(0.,.02,.08)*pow(atmo,3.);
 
-  /* ── nebula layers ── */
-  float n1=noise(uv*2.2+t*.035);
-  float n2=noise(uv*4.5-t*.028+vec2(1.7,2.3));
-  float n3=noise(uv*8. +t*.015+vec2(3.1,0.7));
-  float nb=(n1*n2+n3*.3)*.5;
-  col+=vec3(0.,.04,.18)*nb*.9;
-  col+=vec3(0.,.12,.5)*pow(nb,3.)*.5;
-  col+=vec3(.0,.02,.1)*n3*.4;
-
-  /* ── perspective grid floor ── */
-  float horizon=.52;
-  if(uv.y<horizon){
-    float py=uv.y/horizon;
-    py=pow(py,.28);
-    float gx=fract((uv.x-.5)/py*10.+t*.08);
-    float gy=fract(py*14.);
+  /* perspective grid */
+  if(uv.y<horizon+.02){
+    float py=clamp(uv.y/(horizon+.02),.001,1.);
+    py=pow(py,.25);
+    float gx=fract((uv.x-.5)/py*12.+t*.06);
+    float gy=fract(py*16.);
     float lx=smoothstep(.96,1.,gx)+smoothstep(.96,1.,1.-gx);
     float ly=smoothstep(.94,1.,gy)+smoothstep(.94,1.,1.-gy);
     float grid=max(lx,ly);
-    float fade=py*(1.-py*py*1.2)*2.;
-    /* cyan grid lines */
-    col+=vec3(0.,.25,.7)*grid*fade*.3;
-    col+=vec3(.0,.7,1.)*grid*grid*fade*.12;
-    /* horizon glow */
-    col+=vec3(0.,.08,.3)*smoothstep(.0,.3,py)*smoothstep(1.,.6,py)*.4;
+    float fade=py*(1.-py*py)*2.;
+    col+=vec3(0.,.2,.6)*grid*fade*.3;
+    col+=vec3(0.,.6,1.)*grid*grid*fade*.1;
   }
 
-  /* ── stars ── */
-  vec2 su=floor(uv*220.)/220.;
-  float star=step(.993,hash(su));
-  float twk=sin(t*1.8+hash(su+.1)*6.28)*.5+.5;
-  col+=vec3(.5,.8,1.)*star*twk*.9;
-  /* bright star cores */
-  float bstar=step(.999,hash(su+.5));
-  col+=vec3(.7,.9,1.)*bstar*2.;
+  /* nebula */
+  float n=noise(uv*3.+t*.02)*noise(uv*6.-t*.015);
+  col+=vec3(0.,.05,.2)*n*.5;
 
-  /* ── scanlines ── */
-  col*=1.-sin(uv.y*res.y*3.14159)*.5*.02;
+  /* stars */
+  vec2 su=floor(uv*250.)/250.;
+  float star=step(.993,hash(su));
+  col+=vec3(.5,.8,1.)*star*(sin(t*1.5+hash(su)*6.28)*.4+.6)*.9;
+
+  /* scanlines */
+  col*=1.-sin(uv.y*res.y*3.14159)*.5*.018;
 
   gl_FragColor=vec4(col,1.);
 }`;
 
-/* BRIDGE LINES with emissive glow */
+/* BRIDGE + CABLES (with morph to code lines) */
 const BR_VS=`
 attribute vec3 a_pos;
 attribute vec3 a_col;
 attribute float a_em;
+attribute float a_morph; /* 0=cable, 1=code line */
 uniform mat4 u_mvp;
-uniform float u_t;
+uniform float u_t,u_morphFrac;
 varying vec3 v_col;
-varying float v_em;
-varying float v_d;
+varying float v_em,v_d;
+
 void main(){
-  vec4 p=u_mvp*vec4(a_pos,1.);
-  v_col=a_col; v_em=a_em; v_d=p.z/p.w;
-  gl_Position=p;
+  /* morph: slightly displace toward horizontal code-line position */
+  vec3 p=a_pos;
+  if(a_morph>0.5){
+    float m=u_morphFrac;
+    /* target: horizontal line at same Y, stretching full width */
+    vec3 target=vec3(p.x*2.,p.y,0.);
+    p=mix(p,target,m);
+  }
+  vec4 clip=u_mvp*vec4(p,1.);
+  v_col=a_col; v_em=a_em; v_d=clip.z/clip.w;
+  gl_Position=clip;
 }`;
 const BR_FS=`
 precision highp float;
 varying vec3 v_col;
-varying float v_em;
-varying float v_d;
-uniform float u_t;
+varying float v_em,v_d;
+uniform float u_t,u_morphFrac;
 void main(){
-  float df=clamp(1.-v_d*.3,.0,1.);
+  float df=clamp(1.-v_d*.25,0.,1.);
   vec3 col=v_col*df;
-  float pulse=v_em*(.65+.35*sin(u_t*2.2+v_d*6.));
+  float pulse=v_em*(.6+.4*sin(u_t*2.5+v_d*5.));
   col+=v_col*pulse;
+  /* morph brightens everything toward cyan */
+  col=mix(col,vec3(0.,.9,1.)*df,u_morphFrac*.5);
   gl_FragColor=vec4(col,df*.95);
 }`;
 
-/* PARTICLES + SPARKS */
+/* CODE RAIN PARTICLES */
 const PT_VS=`
 attribute vec3 a_pos;
 attribute vec3 a_col;
 attribute float a_ph;
 uniform mat4 u_mvp;
-uniform float u_t;
-uniform float u_mode;
+uniform float u_t,u_mode,u_show;
 varying vec3 v_col;
 varying float v_a;
 void main(){
   vec3 p=a_pos;
-  v_a=1.;
-  if(u_mode==1.){
-    float ph=fract(a_ph+u_t*.07);
-    p.y+=ph*85.; p.x+=sin(ph*6.28+a_ph*9.)*4.5; p.z+=cos(ph*6.28+a_ph*7.)*4.;
-    v_a=sin(ph*3.14159)*.75;
-    gl_PointSize=2.;
-  } else {
+  v_a=0.;
+  if(u_mode==1.&&u_show>0.){
+    float ph=fract(a_ph+u_t*.09);
+    p.y+=ph*80.; p.x+=sin(ph*6.28+a_ph*9.)*3.5; p.z+=cos(ph*6.28+a_ph*7.)*3.;
+    v_a=sin(ph*3.14159)*.6*u_show;
+    gl_PointSize=1.8;
+  } else if(u_mode==2.){
     v_a=a_ph;
-    gl_PointSize=3.2;
+    gl_PointSize=2.8;
   }
   v_col=a_col;
   gl_Position=u_mvp*vec4(p,1.);
@@ -404,196 +407,150 @@ void main(){
   vec2 uv=gl_PointCoord*2.-1.;
   float d=dot(uv,uv);
   if(d>1.)discard;
-  float a=v_a*(1.-sqrt(d))*2.2;
-  gl_FragColor=vec4(v_col,a);
+  gl_FragColor=vec4(v_col,v_a*(1.-sqrt(d))*2.);
 }`;
 
-/* POST-PROCESSING */
-const POST_VS=`attribute vec2 a;varying vec2 v;void main(){v=a*.5+.5;gl_Position=vec4(a,0,1);}`;
-const POST_FS=`
+/* POST */
+const PO_VS=`attribute vec2 a;varying vec2 v;void main(){v=a*.5+.5;gl_Position=vec4(a,0,1);}`;
+const PO_FS=`
 precision highp float;
 uniform sampler2D u_tex;
-uniform float u_t;
+uniform float u_t,u_morphFrac;
 uniform vec2 u_res;
 varying vec2 v;
-
 void main(){
-  vec2 uv=v;
-  vec2 c=uv-.5;
+  vec2 uv=v, c=uv-.5;
   float d=length(c);
-
-  /* barrel lens */
-  float k=1.+d*d*.1;
+  float k=1.+d*d*.08;
   vec2 duv=c*k+.5;
   if(duv.x<0.||duv.x>1.||duv.y<0.||duv.y>1.){gl_FragColor=vec4(0,0,0,1);return;}
-
-  /* chromatic aberration */
-  float ca=.004+d*.01;
+  float ca=.003+d*.008;
   vec2 dir=normalize(c+.0001)*ca;
   float r=texture2D(u_tex,duv+dir).r;
   float g=texture2D(u_tex,duv).g;
   float b=texture2D(u_tex,duv-dir).b;
   vec3 col=vec3(r,g,b);
-
   /* bloom */
-  vec2 tx=2.8/u_res;
-  vec3 bloom=vec3(0.);float tw=0.;
-  for(int i=-4;i<=4;i++){
-    for(int j=-4;j<=4;j++){
-      float w=exp(-float(i*i+j*j)*.15);
-      vec3 s=texture2D(u_tex,duv+tx*vec2(float(i),float(j))).rgb;
-      float lum=dot(s,vec3(.299,.587,.114));
-      bloom+=s*w*smoothstep(.18,.85,lum);
-      tw+=w;
-    }
-  }
-  bloom/=tw;
-  col+=bloom*1.8;
-
-  /* sci-fi color grade: boost cyan */
-  col.r*=.85; col.g*=1.02; col.b*=1.08;
-
-  /* vignette */
-  float vig=1.-dot(c*vec2(.85,1.1),c*vec2(.85,1.1))*2.6;
-  col*=max(vig,0.);
-
-  /* scanlines */
-  float sc=sin(uv.y*u_res.y*3.14159)*.5+.5;
-  col*=1.-sc*.035;
-
-  /* grain */
-  float gr=fract(sin(dot(uv+u_t*.01,vec2(127.1,311.7)))*43758.5)*.028;
-  col+=gr-.014;
-
-  /* glitch flash */
-  float glf=step(.9985,fract(sin(u_t*137.)*439.));
-  if(glf>.5){
-    float sh=(fract(u_t*200.)-.5)*.018;
-    col.r=texture2D(u_tex,duv+vec2(sh,0.)).r;
-    col.b=texture2D(u_tex,duv-vec2(sh,0.)).b;
-  }
-
-  /* tone + gamma */
-  col=col/(col+.52);
+  vec2 tx=2.5/u_res; vec3 bloom=vec3(0.); float tw=0.;
+  for(int i=-3;i<=3;i++){for(int j=-3;j<=3;j++){
+    float w=exp(-float(i*i+j*j)*.18);
+    vec3 s=texture2D(u_tex,duv+tx*vec2(float(i),float(j))).rgb;
+    bloom+=s*w*smoothstep(.2,.85,dot(s,vec3(.299,.587,.114)));
+    tw+=w;
+  }}
+  col+=bloom/tw*1.5;
+  /* morph: green code tint */
+  col=mix(col,vec3(col.r*.5,col.g*1.2,col.b*.7),u_morphFrac*.4);
+  /* grade */
+  col.r*=.86; col.b*=1.05;
+  col*=1.-dot(c*vec2(.85,1.1),c*vec2(.85,1.1))*2.4;
+  col*=1.-sin(uv.y*u_res.y*3.14159)*.5*.032;
+  float gr=fract(sin(dot(uv+u_t*.01,vec2(127.1,311.7)))*43758.5)*.025;
+  col+=gr-.0125;
+  col=col/(col+.5);
   col=pow(max(col,vec3(0.)),vec3(.44));
-
+  /* glitch on morph */
+  if(u_morphFrac>.1){
+    float glf=step(.997,fract(sin(u_t*137.)*439.));
+    if(glf>.5){float sh=(fract(u_t*200.)-.5)*.012;col.r=texture2D(u_tex,duv+vec2(sh,0.)).r;}
+  }
   gl_FragColor=vec4(col,1.);
 }`;
 
-/* ── compile ── */
 const bgPr=prog(BG_VS,BG_FS);
 const brPr=prog(BR_VS,BR_FS);
 const ptPr=prog(PT_VS,PT_FS);
-const poPr=prog(POST_VS,POST_FS);
-const quadB=buf(new Float32Array([-1,-1,1,-1,-1,1,1,1]));
+const poPr=prog(PO_VS,PO_FS);
+const quadB=makeBuf(new Float32Array([-1,-1,1,-1,-1,1,1,1]));
 
 /* ============================================================
    BRIDGE GEOMETRY
 ============================================================ */
-const V=[],C=[],E=[];
-const CY=[0,.92,1],WH=[.75,.85,1],GY=[.2,.28,.38],DIM=[.08,.15,.25];
+const V=[],C=[],E=[],MR=[]; // verts, colors, emit, morph
 
-function line(ax,ay,az,bx,by,bz,col,em=0,segs=1){
+const CY=[0,.92,1],WH=[.75,.85,1],GY=[.18,.25,.35],DIM=[.06,.12,.2];
+
+function line(ax,ay,az,bx,by,bz,col,em=0,morph=0,segs=1){
   for(let s=0;s<segs;s++){
     const t0=s/segs,t1=(s+1)/segs;
-    V.push(ax+(bx-ax)*t0,ay+(by-ay)*t0,az+(bz-az)*t0); C.push(...col); E.push(em);
-    V.push(ax+(bx-ax)*t1,ay+(by-ay)*t1,az+(bz-az)*t1); C.push(...col); E.push(em);
+    V.push(ax+(bx-ax)*t0,ay+(by-ay)*t0,az+(bz-az)*t0); C.push(...col); E.push(em); MR.push(morph);
+    V.push(ax+(bx-ax)*t1,ay+(by-ay)*t1,az+(bz-az)*t1); C.push(...col); E.push(em); MR.push(morph);
   }
 }
-function cat(ax,ay,az,bx,by,bz,sag,col,em=0){
+function cat(ax,ay,az,bx,by,bz,sag,col,em=0,morph=0){
   const S=24;
   for(let s=0;s<S;s++){
     const t0=s/S,t1=(s+1)/S;
     const f=t=>Math.cosh((t-.5)*4.)*sag-Math.cosh(2.)*sag;
-    V.push(ax+(bx-ax)*t0,ay+(by-ay)*t0+f(t0),az+(bz-az)*t0); C.push(...col); E.push(em);
-    V.push(ax+(bx-ax)*t1,ay+(by-ay)*t1+f(t1),az+(bz-az)*t1); C.push(...col); E.push(em);
+    V.push(ax+(bx-ax)*t0,ay+(by-ay)*t0+f(t0),az+(bz-az)*t0); C.push(...col); E.push(em); MR.push(morph);
+    V.push(ax+(bx-ax)*t1,ay+(by-ay)*t1+f(t1),az+(bz-az)*t1); C.push(...col); E.push(em); MR.push(morph);
   }
 }
 
 /* DECK */
-for(const z of[-8,8])    line(-112,0,z,112,0,z,CY,.0);
-for(const z of[-9.5,9.5])line(-112,0,z,112,0,z,DIM,.0);
-/* cross beams */
+for(const z of[-8,8]) line(-112,0,z,112,0,z,CY,0,0);
+for(const z of[-9.5,9.5]) line(-112,0,z,112,0,z,DIM,0,0);
 for(let x=-108;x<=108;x+=12){
-  line(x,0,-8,x,0,8,GY,0);
-  for(const z of[-8,8]){
-    line(x,-2.5,z*0.7,x,0,z,DIM,0);
-  }
-  line(x,-2.5,-5.6,x,-2.5,5.6,DIM,0);
+  line(x,0,-8,x,0,8,GY,0,0);
+  for(const z of[-8,8]){line(x,-2.5,z*.7,x,0,z,DIM,0,0);}
+  line(x,-2.5,-5.6,x,-2.5,5.6,DIM,0,0);
 }
-/* guardrails */
 for(const z of[-10,10]){
-  line(-112,2.5,z,112,2.5,z,[.12,.35,.45],0);
-  for(let x=-110;x<=110;x+=5) line(x,0,z,x,2.5,z,[.08,.22,.3],0);
+  line(-112,2.5,z,112,2.5,z,[.1,.3,.4],0,0);
+  for(let x=-110;x<=110;x+=6) line(x,0,z,x,2.5,z,[.06,.2,.28],0,0);
 }
-/* road markings */
 for(let x=-108;x<112;x+=15){
-  line(x,.08,-1.8,x+8,.08,-1.8,[.7,.85,.15],0);
-  line(x,.08, 1.8,x+8,.08, 1.8,[.7,.85,.15],0);
+  line(x,.08,-1.8,x+8,.08,-1.8,[.6,.8,.1],0,0);
+  line(x,.08, 1.8,x+8,.08, 1.8,[.6,.8,.1],0,0);
 }
 
-/* MAIN SUSPENSION CABLES */
-for(const z of[-7,7]) cat(-112,52,z,112,52,z,5,WH,.25);
+/* SUSPENSION CABLES */
+for(const z of[-7,7]) cat(-112,52,z,112,52,z,5,WH,.2,0);
 
 /* VERTICAL HANGERS */
 for(let x=-110;x<=110;x+=7){
   const hy=Math.cosh((x/112-.5)*4.)*5-Math.cosh(2.)*5+52;
-  for(const z of[-7,7]) line(x,hy,z,x,0,z,DIM,.08);
+  for(const z of[-7,7]) line(x,hy,z,x,0,z,DIM,.06,0);
 }
 
 /* PYLONS */
 const PYL=[{x:-68,h:56},{x:-26,h:74},{x:26,h:74},{x:68,h:56}];
 PYL.forEach(({x,h})=>{
-  /* tapered legs (4 corners) */
-  for(const [dx,dz] of[[-2,-2],[-2,2],[2,-2],[2,2]]){
-    const tx=dx*.55,tz=dz*.55;
-    line(x+dx,0,dz, x+tx,h,tz, CY,.4);
-  }
-  /* H-frames every 9 units */
+  for(const[dx,dz]of[[-1.8,-1.8],[-1.8,1.8],[1.8,-1.8],[1.8,1.8]])
+    line(x+dx,0,dz,x+dx*.5,h,dz*.5,CY,.4,0);
   for(let y=0;y<=h;y+=9){
     const tp=1-y/h*.38;
-    line(x-2*tp,y,-2*tp, x+2*tp,y,-2*tp, CY,.18);
-    line(x-2*tp,y, 2*tp, x+2*tp,y, 2*tp, CY,.18);
-    line(x-2*tp,y,-2*tp, x-2*tp,y, 2*tp,[.0,.5,.65],.1);
-    line(x+2*tp,y,-2*tp, x+2*tp,y, 2*tp,[.0,.5,.65],.1);
-    /* diagonals */
-    if(y+9<=h){
-      const tp2=1-(y+9)/h*.38;
-      line(x-2*tp,y,0,x+2*tp2,y+9,0,[.0,.38,.5],.08);
-      line(x+2*tp,y,0,x-2*tp2,y+9,0,[.0,.38,.5],.08);
-    }
+    line(x-1.8*tp,y,-1.8*tp,x+1.8*tp,y,-1.8*tp,CY,.15,0);
+    line(x-1.8*tp,y, 1.8*tp,x+1.8*tp,y, 1.8*tp,CY,.15,0);
+    line(x-1.8*tp,y,-1.8*tp,x-1.8*tp,y, 1.8*tp,[.0,.5,.65],.08,0);
+    line(x+1.8*tp,y,-1.8*tp,x+1.8*tp,y, 1.8*tp,[.0,.5,.65],.08,0);
+    if(y+9<=h){const tp2=1-(y+9)/h*.38;line(x-1.8*tp,y,0,x+1.8*tp2,y+9,0,[.0,.35,.5],.06,0);}
   }
-  /* cap beams */
-  line(x-7,h*.84,0,x+7,h*.84,0,CY,.9);
-  line(x-5.5,h*.71,0,x+5.5,h*.71,0,[.0,.6,.8],.6);
-  /* tip spike */
-  line(x,h,0,x,h+5,0,[.5,.97,1],1.8);
-  /* pylon base platform */
-  for(const dz of[-3,0,3]){
-    line(x-4,-1,dz,x+4,-1,dz,[.08,.2,.28],0);
-  }
+  line(x-7,h*.84,0,x+7,h*.84,0,CY,.8,0);
+  line(x-6,h*.71,0,x+6,h*.71,0,[.0,.6,.8],.5,0);
+  line(x,h,0,x,h+5,0,[.5,.97,1],1.8,0);
 });
 
-/* CABLE SLOTS */
-const CS=16;
+/* CABLE SLOTS — morph=1 (will morph to code lines) */
+const CS=14;
 const CDEFS=[];
 PYL.forEach(({x,h})=>{
-  for(const side of[-1,1]){
-    for(let i=0;i<24;i++) CDEFS.push({x,h,ax:x+side*(3+i*4.8),side});
-  }
+  for(const side of[-1,1])
+    for(let i=0;i<24;i++) CDEFS.push({x,h,ax:x+side*(3+i*4.8)});
 });
 const TCAB=CDEFS.length;
 const CSTART=V.length/3;
 for(let ci=0;ci<TCAB;ci++){
   for(let s=0;s<CS;s++){
-    V.push(0,-800,0,0,-800,0); C.push(0,0,0,0,0,0); E.push(0,0);
+    V.push(0,-800,0,0,-800,0); C.push(0,0,0,0,0,0); E.push(0,0); MR.push(1,1);
   }
 }
 
-const lv=new Float32Array(V),lc=new Float32Array(C),le=new Float32Array(E);
-const lBuf=buf(lv,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-const cBuf=buf(lc,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-const eBuf=buf(le,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const lv=new Float32Array(V),lc=new Float32Array(C),le=new Float32Array(E),lm=new Float32Array(MR);
+const lBuf=makeBuf(lv,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const cBuf=makeBuf(lc,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const eBuf=makeBuf(le,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const mBuf=makeBuf(lm);
 const LC=lv.length/3;
 
 let visCab=0;
@@ -602,139 +559,187 @@ function updateCab(frac){
   if(n===visCab)return;
   for(let ci=visCab;ci<n;ci++){
     const{x,h,ax}=CDEFS[ci];
-    const ty=h-2, base=(CSTART+ci*CS*2)*3, eBase=(CSTART+ci*CS*2);
-    const br=.45+.55*(1-ci/TCAB);
+    const ty=h-2,base=(CSTART+ci*CS*2)*3,eBase=(CSTART+ci*CS*2);
+    const br=.4+.6*(1-ci/TCAB);
     for(let s=0;s<CS;s++){
       const t0=s/CS,t1=(s+1)/CS;
       const sag=t=>Math.sin(t*Math.PI)*-2.8;
       const i0=base+s*6;
-      lv[i0]  =x+(ax-x)*t0; lv[i0+1]=ty+(0-ty)*t0+sag(t0); lv[i0+2]=0;
+      lv[i0]=x+(ax-x)*t0; lv[i0+1]=ty+(0-ty)*t0+sag(t0); lv[i0+2]=0;
       lv[i0+3]=x+(ax-x)*t1; lv[i0+4]=ty+(0-ty)*t1+sag(t1); lv[i0+5]=0;
       lc[i0]=0;lc[i0+1]=br*.88;lc[i0+2]=br;
       lc[i0+3]=0;lc[i0+4]=br*.88;lc[i0+5]=br;
-      le[eBase+s*2]=br*.55; le[eBase+s*2+1]=br*.55;
+      le[eBase+s*2]=br*.5; le[eBase+s*2+1]=br*.5;
     }
   }
   visCab=n;
   gl.bindBuffer(gl.ARRAY_BUFFER,lBuf); gl.bufferData(gl.ARRAY_BUFFER,lv,gl.DYNAMIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER,cBuf); gl.bufferData(gl.ARRAY_BUFFER,lc,gl.DYNAMIC_DRAW);
   gl.bindBuffer(gl.ARRAY_BUFFER,eBuf); gl.bufferData(gl.ARRAY_BUFFER,le,gl.DYNAMIC_DRAW);
-  document.getElementById('hcab').textContent=visCab+'/'+TCAB;
 }
 
 /* ============================================================
    PARTICLES
 ============================================================ */
-const PC=2800;
+const PC=2000;
 const pp=new Float32Array(PC*3),pco=new Float32Array(PC*3),pph=new Float32Array(PC);
 for(let i=0;i<PC;i++){
-  pp[i*3]=(Math.random()-.5)*360; pp[i*3+1]=Math.random()*80; pp[i*3+2]=(Math.random()-.5)*90;
+  pp[i*3]=(Math.random()-.5)*320; pp[i*3+1]=Math.random()*75; pp[i*3+2]=(Math.random()-.5)*80;
   const t=Math.random();
-  if(t<.5){pco[i*3]=0;pco[i*3+1]=.82;pco[i*3+2]=1;}
-  else if(t<.78){pco[i*3]=0;pco[i*3+1]=.28;pco[i*3+2]=1;}
-  else{pco[i*3]=.55;pco[i*3+1]=.85;pco[i*3+2]=1;}
+  if(t<.5){pco[i*3]=0;pco[i*3+1]=.85;pco[i*3+2]=1;}
+  else if(t<.75){pco[i*3]=0;pco[i*3+1]=.3;pco[i*3+2]=1;}
+  else{pco[i*3]=.5;pco[i*3+1]=.9;pco[i*3+2]=.5;} // green for code mode
   pph[i]=Math.random();
 }
-const ppB=buf(pp),pcoB=buf(pco),pphB=buf(pph);
+const ppB=makeBuf(pp),pcoB=makeBuf(pco),pphB=makeBuf(pph);
 
 /* SPARKS */
-const SC2=500;
-const sp2=new Float32Array(SC2*3).fill(-999);
-const sc2=new Float32Array(SC2*3);
-const sph2=new Float32Array(SC2);
-const sv2=new Float32Array(SC2*3);
-const sl2=new Float32Array(SC2);
-const sp2B=buf(sp2,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-const sc2B=buf(sc2,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-const sph2B=buf(sph2,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-let sh=0;
-function spark(x,y,z,n=8){
+const SC=350;
+const sp=new Float32Array(SC*3).fill(-999),sco=new Float32Array(SC*3);
+const sph=new Float32Array(SC),sv=new Float32Array(SC*3),sl=new Float32Array(SC);
+const spB=makeBuf(sp,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const scoB=makeBuf(sco,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+const sphB=makeBuf(sph,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
+let sh2=0;
+function spark(x,y,z,n=6){
   for(let k=0;k<n;k++){
-    const i=sh%SC2; sh++;
-    sp2[i*3]=x+(Math.random()-.5)*2; sp2[i*3+1]=y; sp2[i*3+2]=z+(Math.random()-.5)*2;
-    sv2[i*3]=(Math.random()-.5)*1.8; sv2[i*3+1]=Math.random()*4.5+.8; sv2[i*3+2]=(Math.random()-.5)*1.8;
-    sl2[i]=1.;
+    const i=sh2%SC;sh2++;
+    sp[i*3]=x+(Math.random()-.5)*2;sp[i*3+1]=y;sp[i*3+2]=z+(Math.random()-.5)*2;
+    sv[i*3]=(Math.random()-.5)*1.6;sv[i*3+1]=Math.random()*4+.5;sv[i*3+2]=(Math.random()-.5)*1.6;
+    sl[i]=1.;
   }
 }
 function tickSparks(){
-  for(let i=0;i<SC2;i++){
-    if(sl2[i]<=0){sp2[i*3+1]=-500;continue;}
-    sl2[i]-=.022; sv2[i*3+1]-=.09;
-    sp2[i*3]+=sv2[i*3]; sp2[i*3+1]+=sv2[i*3+1]; sp2[i*3+2]+=sv2[i*3+2];
-    sph2[i]=sl2[i];
-    sc2[i*3]=sl2[i]; sc2[i*3+1]=sl2[i]*.55; sc2[i*3+2]=sl2[i]*.1;
+  for(let i=0;i<SC;i++){
+    if(sl[i]<=0){sp[i*3+1]=-500;continue;}
+    sl[i]-=.024;sv[i*3+1]-=.09;
+    sp[i*3]+=sv[i*3];sp[i*3+1]+=sv[i*3+1];sp[i*3+2]+=sv[i*3+2];
+    sph[i]=sl[i];sco[i*3]=sl[i];sco[i*3+1]=sl[i]*.5;sco[i*3+2]=0;
   }
-  gl.bindBuffer(gl.ARRAY_BUFFER,sp2B); gl.bufferData(gl.ARRAY_BUFFER,sp2,gl.DYNAMIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,sc2B); gl.bufferData(gl.ARRAY_BUFFER,sc2,gl.DYNAMIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,sph2B);gl.bufferData(gl.ARRAY_BUFFER,sph2,gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,spB);  gl.bufferData(gl.ARRAY_BUFFER,sp, gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,scoB); gl.bufferData(gl.ARRAY_BUFFER,sco,gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,sphB); gl.bufferData(gl.ARRAY_BUFFER,sph,gl.DYNAMIC_DRAW);
 }
 
 /* ============================================================
-   CAMERA
+   SCROLL-DRIVEN CAMERA PATH
+   scrollFrac 0→1 maps to scenes:
+   0.00–0.18 : Scene 0 — far overview, hero text
+   0.18–0.40 : Scene 1 — approach from side
+   0.40–0.65 : Scene 2 — fly through bridge, on deck
+   0.65–0.85 : Scene 3 — cables morph to code
+   0.85–1.00 : Scene 4 — pull back, show projects
 ============================================================ */
-const CAMNODES=[
-  {e:[0,32,135],  t:[0,14,0]},
-  {e:[-115,42,58],t:[0,24,0]},
-  {e:[0,90,10],   t:[0,-2,0]},
-  {e:[108,22,72], t:[0,10,0]},
-  {e:[-25,14,42], t:[0,30,0]},
-  {e:[35,60,95],  t:[0,8,0]},
+const CAM_PATH=[
+  /* t=0   */ {e:[0,55,160],   t:[0,10,0]},
+  /* t=0.2 */ {e:[-90,38,100], t:[0,20,0]},
+  /* t=0.4 */ {e:[-30,18,30],  t:[20,5,0]},
+  /* t=0.6 */ {e:[0,8,10],     t:[60,2,0]},
+  /* t=0.75*/ {e:[0,25,50],    t:[0,15,0]},
+  /* t=0.9 */ {e:[0,60,120],   t:[0,8,0]},
+  /* t=1.0 */ {e:[0,70,130],   t:[0,5,0]},
 ];
-let ci=0,ct=0;
-const PROJ=M.persp(Math.PI/3.2,W/H,.5,1500);
-const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-const lerp=(a,b,t)=>a+(b-a)*t;
-const lerpA=(a,b,t)=>a.map((v,i)=>lerp(v,b[i],t));
+
+function samplePath(frac){
+  const n=CAM_PATH.length-1;
+  const fi=frac*n;
+  const i=Math.min(Math.floor(fi),n-1);
+  const tf=fi-i;
+  const a=CAM_PATH[i],b=CAM_PATH[i+1];
+  const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  const et=ease(tf);
+  return{
+    e:a.e.map((v,k)=>v+(b.e[k]-v)*et),
+    t:a.t.map((v,k)=>v+(b.t[k]-v)*et),
+  };
+}
 
 /* ============================================================
-   RENDER LOOP
+   SCENE LABELS
 ============================================================ */
-let time=0,last=performance.now(),build=0;
+function updateLabels(frac){
+  const scenes=[
+    {id:'lbl-0',from:0,    to:.22},
+    {id:'lbl-1',from:.18,  to:.42},
+    {id:'lbl-2',from:.38,  to:.67},
+    {id:'lbl-3',from:.62,  to:.88},
+  ];
+  scenes.forEach(({id,from,to})=>{
+    const el=document.getElementById(id);
+    const inside=frac>=from&&frac<=to;
+    el.classList.toggle('active',inside);
+  });
+  // projects panel
+  const projEl=document.getElementById('projects');
+  projEl.classList.toggle('show',frac>.82);
+  // scroll hint hides after start
+  const shEl=document.getElementById('sh');
+  shEl.style.opacity=frac<.05?'1':'0';
+}
+
+/* ============================================================
+   MAIN LOOP
+============================================================ */
+const PROJ=M.persp(Math.PI/3.2,W/H,.5,1500);
+let time=0,last=performance.now();
+let build=0,morphFrac=0;
 const pylB=[0,0,0,0];
-let fps3=0,fpsC=0,fpsT=0;
+let fps=0,fpsC=0,fpsT=0;
+
+function getScrollFrac(){
+  const maxScroll=document.getElementById('scroll-driver').clientHeight-window.innerHeight;
+  return Math.min(window.scrollY/maxScroll,1);
+}
 
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,.05); last=now; time+=dt;
 
   fpsC++;fpsT+=dt;
-  if(fpsT>=.5){fps3=Math.round(fpsC/fpsT);fpsC=0;fpsT=0;document.getElementById('hfps').textContent=fps3+' FPS';}
+  if(fpsT>=.5){fps=Math.round(fpsC/fpsT);fpsC=0;fpsT=0;document.getElementById('hfps').textContent=fps+' FPS';}
 
-  build=Math.min(build+dt*.042,1);
-  document.getElementById('hbld').textContent=Math.round(build*100)+'%';
+  const sf=getScrollFrac();
+  document.getElementById('hpos').textContent=Math.round(sf*100)+'%';
 
-  PYL.forEach(({h},i)=>{
-    const s=.05+i*.11,e=s+.24;
-    pylB[i]=ease(Math.max(0,Math.min(1,(build-s)/(e-s))));
-    if(pylB[i]>.04&&pylB[i]<.96&&Math.random()<.2)
-      spark(PYL[i].x,h*pylB[i]-1,(Math.random()-.5)*3,6);
-  });
-
-  updateCab(Math.max(0,(build-.32)/.68));
+  /* build cables during approach */
+  build=Math.min(build+dt*.055,1);
+  const cabFrac=Math.max(0,(build-.3)/.7)*Math.min(1,sf*5+.4);
+  updateCab(cabFrac);
   tickSparks();
 
-  /* camera */
-  ct+=dt*.13;
-  if(ct>=1){ct=0;ci=(ci+1)%CAMNODES.length;}
-  const ni=(ci+1)%CAMNODES.length, et=ease(ct);
-  const eye=lerpA(CAMNODES[ci].e,CAMNODES[ni].e,et);
-  const tgt=lerpA(CAMNODES[ci].t,CAMNODES[ni].t,et);
-  eye[0]+=Math.sin(time*.32)*2.8; eye[1]+=Math.sin(time*.21)*1.3;
-  const VIEW=M.lookAt(eye[0],eye[1],eye[2],tgt[0],tgt[1],tgt[2]);
+  /* pylon build */
+  PYL.forEach(({h},i)=>{
+    const s=.04+i*.1,e=s+.22;
+    pylB[i]=Math.max(0,Math.min(1,(build-s)/(e-s)));
+    if(pylB[i]>.04&&pylB[i]<.96&&Math.random()<.15)
+      spark(PYL[i].x,h*pylB[i]-1,(Math.random()-.5)*3,5);
+  });
+
+  /* morph cables → code (scene 3: sf 0.65→0.85) */
+  morphFrac=Math.max(0,Math.min(1,(sf-.65)/.2));
+
+  updateLabels(sf);
+
+  /* camera from scroll path + breathing */
+  const cam=samplePath(sf);
+  cam.e[0]+=Math.sin(time*.3)*1.5;
+  cam.e[1]+=Math.sin(time*.2)*.8;
+  const VIEW=M.lookAt(cam.e[0],cam.e[1],cam.e[2],cam.t[0],cam.t[1],cam.t[2]);
   const MVP=M.mul(PROJ,VIEW);
 
-  /* ── render to FB ── */
+  /* ── RENDER TO FB ── */
   gl.bindFramebuffer(gl.FRAMEBUFFER,FB.fb);
   gl.viewport(0,0,W,H);
   gl.clearColor(0,0,.018,1);
   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+  gl.enable(gl.BLEND);      gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
 
   /* BG */
   gl.disable(gl.DEPTH_TEST);
   gl.useProgram(bgPr);
   gl.uniform1f(ul(bgPr,'t'),time);
+  gl.uniform1f(ul(bgPr,'scroll'),sf);
   gl.uniform2f(ul(bgPr,'res'),W,H);
   setAttr(bgPr,'a',2,quadB);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
@@ -744,9 +749,11 @@ function frame(now){
   gl.useProgram(brPr);
   gl.uniformMatrix4fv(ul(brPr,'u_mvp'),false,MVP);
   gl.uniform1f(ul(brPr,'u_t'),time);
+  gl.uniform1f(ul(brPr,'u_morphFrac'),morphFrac);
   setAttr(brPr,'a_pos',3,lBuf);
   setAttr(brPr,'a_col',3,cBuf);
   setAttr(brPr,'a_em', 1,eBuf);
+  setAttr(brPr,'a_morph',1,mBuf);
   gl.drawArrays(gl.LINES,0,LC);
 
   /* PARTICLES */
@@ -754,19 +761,21 @@ function frame(now){
   gl.uniformMatrix4fv(ul(ptPr,'u_mvp'),false,MVP);
   gl.uniform1f(ul(ptPr,'u_t'),time);
   gl.uniform1f(ul(ptPr,'u_mode'),1.);
+  gl.uniform1f(ul(ptPr,'u_show'),sf*.5+.2);
   setAttr(ptPr,'a_pos',3,ppB);
   setAttr(ptPr,'a_col',3,pcoB);
-  setAttr(ptPr,'a_ph', 1,pphB);
+  setAttr(ptPr,'a_ph'), 1,pphB;
   gl.drawArrays(gl.POINTS,0,PC);
 
   /* SPARKS */
   gl.uniform1f(ul(ptPr,'u_mode'),2.);
-  setAttr(ptPr,'a_pos',3,sp2B);
-  setAttr(ptPr,'a_col',3,sc2B);
-  setAttr(ptPr,'a_ph', 1,sph2B);
-  gl.drawArrays(gl.POINTS,0,SC2);
+  gl.uniform1f(ul(ptPr,'u_show'),1.);
+  setAttr(ptPr,'a_pos',3,spB);
+  setAttr(ptPr,'a_col',3,scoB);
+  setAttr(ptPr,'a_ph'), 1,sphB;
+  gl.drawArrays(gl.POINTS,0,SC);
 
-  /* ── post → screen ── */
+  /* ── POST → SCREEN ── */
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   gl.viewport(0,0,W,H);
   gl.disable(gl.DEPTH_TEST);
@@ -777,6 +786,7 @@ function frame(now){
   gl.bindTexture(gl.TEXTURE_2D,FB.tex);
   gl.uniform1i(ul(poPr,'u_tex'),0);
   gl.uniform1f(ul(poPr,'u_t'),time);
+  gl.uniform1f(ul(poPr,'u_morphFrac'),morphFrac);
   gl.uniform2f(ul(poPr,'u_res'),W,H);
   setAttr(poPr,'a',2,quadB);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
@@ -784,8 +794,8 @@ function frame(now){
 requestAnimationFrame(frame);
 
 window.addEventListener('resize',()=>{
-  W=window.innerWidth; H=window.innerHeight;
-  canvas.width=W; canvas.height=H;
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W;canvas.height=H;
   gl.viewport(0,0,W,H);
   FB=makeFB(W,H);
 });
