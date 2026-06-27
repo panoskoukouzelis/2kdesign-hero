@@ -6,737 +6,715 @@
 <title>2KDesign Patras</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden}
-#scroller{height:600vh}
-#c{position:fixed;inset:0;width:100%;height:100%;display:block}
-#ui{position:fixed;inset:0;z-index:10;pointer-events:none}
+html{scroll-behavior:auto}
+body{background:#000;overflow-x:hidden;font-family:'Segoe UI',system-ui,sans-serif}
 
-#load{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.4s}
-#load.out{opacity:0;pointer-events:none}
-.ll{font-size:2.2rem;font-weight:900;color:#fff;margin-bottom:2rem;letter-spacing:-1px}
-.ll b{color:#00f0ff}
-.lbar{width:200px;height:1px;background:rgba(255,255,255,.08)}
-.lfill{height:100%;width:0;background:#00f0ff;transition:width .15s}
-.ltxt{font-family:monospace;font-size:.58rem;letter-spacing:3px;color:rgba(255,255,255,.2);margin-top:1rem}
+/* Tall page — drives scroll */
+#page{height:700vh}
 
-nav{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.8rem;opacity:0;transition:opacity 1s .5s}
-nav.show{opacity:1}
-.logo{font-size:.9rem;font-weight:900;letter-spacing:2px;color:#fff}
+/* Fixed canvas */
+#c{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+
+/* Fixed UI */
+#ui{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none}
+
+/* NAV */
+nav{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 2.5rem;
+  background:linear-gradient(to bottom,rgba(0,0,0,.6),transparent);
+}
+.logo{font-size:1rem;font-weight:900;letter-spacing:3px;color:#fff;text-transform:uppercase}
 .logo b{color:#00f0ff}
-.ncta{pointer-events:all;background:transparent;border:.5px solid rgba(0,240,255,.4);color:#00f0ff;padding:.4rem 1rem;font-size:.68rem;letter-spacing:1px;cursor:pointer;transition:all .2s}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;transition:.2s;pointer-events:all}
+.nav-links a:hover{color:#00f0ff}
+.ncta{pointer-events:all;background:transparent;border:.5px solid rgba(0,240,255,.4);color:#00f0ff;padding:.42rem 1.1rem;font-size:.7rem;letter-spacing:2px;cursor:pointer;transition:.2s;font-family:inherit}
 .ncta:hover{background:#00f0ff;color:#000}
 
-.lbl{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);text-align:center;width:90%;opacity:0;transition:opacity .7s;pointer-events:none}
-.lbl.on{opacity:1}
-.pre{font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:rgba(0,240,255,.5);font-family:monospace;margin-bottom:1.2rem}
-#l0 h1{font-size:clamp(2.8rem,11vw,7rem);font-weight:900;letter-spacing:-3px;line-height:.9;color:#fff}
-#l0 h1 b{color:#00f0ff;display:block}
-#l0 .sub{font-size:.65rem;letter-spacing:3px;color:rgba(255,255,255,.2);margin-top:1.2rem;text-transform:uppercase}
-#l1 h2,#l2 h2,#l3 h2{font-size:clamp(2rem,8vw,4.5rem);font-weight:900;letter-spacing:-2px;line-height:1;color:#fff}
-#l2 h2 b,#l3 h2 b{color:#00f0ff}
+/* SCENE TEXT BLOCKS */
+.scene{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-55%);
+  text-align:center;width:88%;
+  opacity:0;
+  transition:opacity .9s ease;
+  will-change:opacity;
+}
+.scene.visible{opacity:1}
 
-#sh{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);text-align:center;font-size:.52rem;letter-spacing:3px;color:rgba(255,255,255,.15);opacity:0;transition:opacity 1s 1.2s}
-#sh.show{opacity:1}
-.shl{width:1px;height:34px;background:linear-gradient(to bottom,#00f0ff,transparent);margin:.4rem auto 0;animation:shlp 2s ease-in-out infinite}
-@keyframes shlp{0%,100%{opacity:.1;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+.s-pre{
+  font-size:.58rem;letter-spacing:5px;text-transform:uppercase;
+  color:rgba(0,240,255,.5);font-family:monospace;
+  margin-bottom:1.4rem;display:block;
+}
+.s-h1{
+  font-size:clamp(3rem,10vw,8rem);
+  font-weight:900;line-height:.9;letter-spacing:-4px;color:#fff;
+  margin-bottom:1.4rem;display:block;
+}
+.s-h1 em{font-style:normal;color:#00f0ff;display:block}
+.s-sub{
+  font-size:.72rem;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(255,255,255,.2);display:block;margin-bottom:2.5rem;
+}
+.s-h2{
+  font-size:clamp(2rem,7vw,5rem);
+  font-weight:900;line-height:.95;letter-spacing:-2px;color:#fff;
+}
+.s-h2 em{font-style:normal;color:#00f0ff}
+.s-btns{display:flex;gap:1rem;justify-content:center;pointer-events:all;margin-top:2rem}
+.btn-p{
+  background:linear-gradient(135deg,#00f0ff,#0050ff);color:#000;border:none;
+  padding:.9rem 2.4rem;font-size:.8rem;font-weight:900;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;transition:.2s;font-family:inherit;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(0,240,255,.4)}
+.btn-g{
+  background:transparent;color:rgba(255,255,255,.4);
+  border:.5px solid rgba(255,255,255,.2);
+  padding:.9rem 2.4rem;font-size:.8rem;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;transition:.2s;font-family:inherit;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+}
+.btn-g:hover{border-color:#00f0ff;color:#00f0ff}
 
-#hud{position:absolute;top:4.5rem;right:1.8rem;font-family:monospace;font-size:.5rem;letter-spacing:1px;color:rgba(0,240,255,.22);line-height:2.2;text-align:right;opacity:0;transition:opacity 1s .8s}
-#hud.show{opacity:1}
-#hud b{color:rgba(0,240,255,.55)}
+/* SCROLL HINT */
+#sh{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  text-align:center;color:rgba(255,255,255,.15);
+  font-size:.55rem;letter-spacing:3px;
+  transition:opacity .5s;
+}
+.shl{width:1px;height:36px;background:linear-gradient(to bottom,#00f0ff,transparent);margin:.5rem auto 0;animation:shlp 2s ease-in-out infinite}
+@keyframes shlp{0%,100%{opacity:.15;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
 
-#proj{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(to top,#000 75%,transparent);padding:1.5rem 1.5rem 1rem;opacity:0;transition:opacity .7s;pointer-events:none;z-index:10}
-#proj.show{opacity:1;pointer-events:all}
-#proj h3{font-size:.52rem;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,.4);font-family:monospace;margin-bottom:.8rem}
-.ps{display:flex;gap:.8rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.ps::-webkit-scrollbar{display:none}
-.pc{flex:0 0 155px;background:rgba(255,255,255,.03);border:.5px solid rgba(255,255,255,.08);border-radius:3px;padding:.9rem;cursor:pointer;transition:all .2s;pointer-events:all}
-.pc:hover{border-color:rgba(0,240,255,.4);transform:translateY(-2px)}
-.pn{font-family:monospace;font-size:.5rem;color:rgba(0,240,255,.4);letter-spacing:2px;margin-bottom:.4rem}
-.pname{font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.2rem}
-.pt{font-size:.65rem;color:rgba(255,255,255,.3)}
+/* HUD */
+#hud{
+  position:absolute;bottom:2.5rem;right:2rem;
+  font-family:monospace;font-size:.52rem;letter-spacing:1px;
+  color:rgba(0,240,255,.2);line-height:2.2;text-align:right;
+}
+#hud b{color:rgba(0,240,255,.5)}
+
+/* Corner brackets */
+.brk{position:absolute;width:18px;height:18px}
+.brk.tl{top:2.8rem;left:2.8rem;border-top:.5px solid rgba(0,240,255,.3);border-left:.5px solid rgba(0,240,255,.3)}
+.brk.tr{top:2.8rem;right:2.8rem;border-top:.5px solid rgba(0,240,255,.3);border-right:.5px solid rgba(0,240,255,.3)}
+.brk.bl{bottom:2rem;left:2.8rem;border-bottom:.5px solid rgba(0,240,255,.3);border-left:.5px solid rgba(0,240,255,.3)}
+.brk.br{bottom:2rem;right:2.8rem;border-bottom:.5px solid rgba(0,240,255,.3);border-right:.5px solid rgba(0,240,255,.3)}
+
+/* PROGRESS LINE */
+#prog-bar{
+  position:absolute;top:0;left:0;height:1px;
+  background:linear-gradient(90deg,transparent,#00f0ff,transparent);
+  width:0%;transition:width .1s linear;
+}
+
+/* PROJECTS PANEL */
+#proj-panel{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(0,0,0,.97) 60%,transparent);
+  padding:2rem 2rem 1.5rem;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .8s,transform .8s;
+  pointer-events:none;
+}
+#proj-panel.visible{opacity:1;transform:translateY(0);pointer-events:all}
+#proj-panel h3{
+  font-size:.55rem;letter-spacing:4px;text-transform:uppercase;
+  color:rgba(0,240,255,.4);font-family:monospace;margin-bottom:1rem;
+}
+.proj-strip{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.5rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.proj-strip::-webkit-scrollbar{display:none}
+.proj-card{
+  flex:0 0 170px;
+  background:rgba(255,255,255,.03);
+  border:.5px solid rgba(255,255,255,.07);
+  border-radius:4px;padding:1.1rem 1rem;
+  cursor:pointer;transition:.25s;
+}
+.proj-card:hover{border-color:rgba(0,240,255,.35);background:rgba(0,240,255,.04);transform:translateY(-3px)}
+.proj-card .num{font-family:monospace;font-size:.5rem;color:rgba(0,240,255,.4);letter-spacing:2px;margin-bottom:.5rem}
+.proj-card .name{font-size:.88rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+.proj-card .type{font-size:.68rem;color:rgba(255,255,255,.28)}
+
+/* LOADING */
+#load{
+  position:fixed;inset:0;background:#000;z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 1.4s;
+}
+#load.hide{opacity:0;pointer-events:none}
+.load-logo{font-size:2.5rem;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:2.5rem}
+.load-logo b{color:#00f0ff}
+.load-bar{width:220px;height:1px;background:rgba(255,255,255,.06)}
+.load-fill{height:100%;width:0;background:#00f0ff;transition:width .12s}
+.load-txt{font-family:monospace;font-size:.58rem;letter-spacing:3px;color:rgba(255,255,255,.2);margin-top:1.1rem}
+
+@media(max-width:600px){
+  nav .nav-links{display:none}
+  .s-h1{letter-spacing:-2px}
+  .brk{display:none}
+}
 </style>
 </head>
 <body>
+
 <div id="load">
-  <div class="ll"><b>2K</b>DESIGN</div>
-  <div class="lbar"><div class="lfill" id="lf"></div></div>
-  <div class="ltxt" id="lt">BOOT</div>
+  <div class="load-logo"><b>2K</b>DESIGN</div>
+  <div class="load-bar"><div class="load-fill" id="lf"></div></div>
+  <div class="load-txt" id="lt">INITIALIZING</div>
 </div>
 
+<div id="page"></div>
 <canvas id="c"></canvas>
 
-<div id="scroller"></div>
-
 <div id="ui">
-  <nav id="nav">
+  <div id="prog-bar"></div>
+
+  <div class="brk tl"></div><div class="brk tr"></div>
+  <div class="brk bl"></div><div class="brk br"></div>
+
+  <nav>
     <div class="logo"><b>2K</b>DESIGN PATRAS</div>
-    <button class="ncta">Προσφορά →</button>
+    <div class="nav-links">
+      <a href="#">Υπηρεσίες</a>
+      <a href="#">Portfolio</a>
+      <a href="#">Επικοινωνία</a>
+      <button class="ncta">Προσφορά →</button>
+    </div>
   </nav>
 
-  <div class="lbl on" id="l0">
-    <div class="pre">// Πάτρα · Web Agency · Est. 2009</div>
-    <h1>ΧΤΙΖΟΥΜΕ<b>ΨΗΦΙΑΚΕΣ ΓΕΦΥΡΕΣ</b></h1>
-    <div class="sub">WordPress · WooCommerce · Custom Dev</div>
+  <!-- Scene 0: Hero -->
+  <div class="scene visible" id="s0">
+    <span class="s-pre">// Πάτρα · Web Agency · Est. 2009</span>
+    <span class="s-h1">ΧΤΙΖΟΥΜΕ<em>ΨΗΦΙΑΚΕΣ ΓΕΦΥΡΕΣ</em></span>
+    <span class="s-sub">WordPress · WooCommerce · Custom Development</span>
+    <div class="s-btns">
+      <button class="btn-p">Ξεκινήστε το Project</button>
+      <button class="btn-g">Δείτε το Portfolio</button>
+    </div>
   </div>
-  <div class="lbl" id="l1">
-    <div class="pre">// APPROACHING STRUCTURE</div>
-    <h2>15 χρόνια<br>ψηφιακής<br>κατασκευής</h2>
+
+  <!-- Scene 1: Approach -->
+  <div class="scene" id="s1">
+    <span class="s-pre">// APPROACHING STRUCTURE · 38°19′N 21°46′E</span>
+    <span class="s-h2">15 χρόνια<br>ψηφιακής<br><em>κατασκευής</em></span>
   </div>
-  <div class="lbl" id="l2">
-    <div class="pre">// ON THE BRIDGE</div>
-    <h2>Κάθε project<br>είναι μια<br><b>γέφυρα</b></h2>
+
+  <!-- Scene 2: On the bridge -->
+  <div class="scene" id="s2">
+    <span class="s-pre">// ON THE BRIDGE · DECK LEVEL</span>
+    <span class="s-h2">Κάθε project<br>είναι μια<br><em>γέφυρα</em></span>
   </div>
-  <div class="lbl" id="l3">
-    <div class="pre">// CODE IS THE STRUCTURE</div>
-    <h2>Από καλώδια<br>σε <b>κώδικα</b></h2>
+
+  <!-- Scene 3: Under cables -->
+  <div class="scene" id="s3">
+    <span class="s-pre">// CABLE SYSTEM · 192 STAYS</span>
+    <span class="s-h2">Δομή.<br>Ακρίβεια.<br><em>Αποτέλεσμα.</em></span>
+  </div>
+
+  <!-- Scene 4: Code morph -->
+  <div class="scene" id="s4">
+    <span class="s-pre">// TRANSFORMING · CABLES → CODE</span>
+    <span class="s-h2">Από καλώδια<br>σε <em>κώδικα</em></span>
   </div>
 
   <div id="sh">SCROLL<div class="shl"></div></div>
+
   <div id="hud">
-    RIO-ANTIRRIO<br>
-    <b id="hp">0%</b> PROGRESS<br>
-    <b id="hf">— FPS</b>
+    RIO-ANTIRRIO BRIDGE<br>
+    PROGRESS: <b id="hprog">0%</b><br>
+    <b id="hfps">— FPS</b>
   </div>
 
-  <div id="proj">
+  <!-- Projects -->
+  <div id="proj-panel">
     <h3>// Portfolio — Επιλεγμένα Projects</h3>
-    <div class="ps" id="ps"></div>
+    <div class="proj-strip" id="ps"></div>
   </div>
 </div>
 
+<!-- Three.js r128 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
-// ── PROJECTS ──
-[['01','LesLimones.gr','WooCommerce + Mega Menu'],
- ['02','GetCozy.gr','Magento → WooCommerce'],
- ['03','FaceShop.gr','Flatsome + Bookly'],
- ['04','OneTouch.gr','Yukatel WooSync'],
- ['05','ChunkyButterfly','WooCommerce Custom'],
- ['06','CretaForce.gr','Server & Migration'],
- ['07','Project Alpha','WordPress + Plugin'],
- ['08','Project Beta','eShop + Meta Ads'],
- ['09','Project Gamma','WooCommerce + SEO'],
- ['10','2KDesign Patras','Agency Site'],
-].forEach(([n,name,type])=>{
-  document.getElementById('ps').innerHTML+=
-    `<div class="pc"><div class="pn">${n}</div><div class="pname">${name}</div><div class="pt">${type}</div></div>`;
+/* ============================================================
+   PROJECTS
+============================================================ */
+const PROJECTS = [
+  ['01','LesLimones.gr','WooCommerce + Mega Menu'],
+  ['02','GetCozy.gr','Magento → WooCommerce'],
+  ['03','FaceShop.gr','Flatsome + Bookly'],
+  ['04','OneTouch.gr','Yukatel WooSync Plugin'],
+  ['05','ChunkyButterfly','WooCommerce Custom'],
+  ['06','CretaForce.gr','Server & Migration'],
+  ['07','Project Alpha','WordPress + Custom Plugin'],
+  ['08','Project Beta','eShop + Meta Ads'],
+  ['09','Project Gamma','WooCommerce + SEO'],
+  ['10','2KDesign Patras','Agency Site — You Are Here'],
+];
+const ps = document.getElementById('ps');
+PROJECTS.forEach(([n,name,type]) => {
+  ps.innerHTML += `<div class="proj-card"><div class="num">${n}</div><div class="name">${name}</div><div class="type">${type}</div></div>`;
 });
 
-// ── LOADING ──
-const LS=[[10,'BOOT'],[25,'WEBGL'],[42,'SHADERS'],[60,'GEOMETRY'],[78,'CABLES'],[92,'POST-FX'],[100,'ONLINE']];
-let si=0;
-const lf=document.getElementById('lf'),lt=document.getElementById('lt');
-function loadStep(){
-  if(si>=LS.length){
-    document.getElementById('load').classList.add('out');
-    setTimeout(()=>document.getElementById('load').style.display='none',1500);
-    ['nav','sh','hud'].forEach(id=>document.getElementById(id).classList.add('show'));
+/* ============================================================
+   LOADING
+============================================================ */
+const LSTEPS = [
+  [12,'INITIALIZING THREE.JS'],
+  [28,'BUILDING SCENE'],
+  [45,'PLACING PYLONS'],
+  [62,'STRINGING CABLES'],
+  [78,'PARTICLES ONLINE'],
+  [92,'SCROLL ENGINE'],
+  [100,'READY'],
+];
+let lsi = 0;
+const lf = document.getElementById('lf'), lt = document.getElementById('lt');
+function loadStep() {
+  if (lsi >= LSTEPS.length) {
+    setTimeout(() => {
+      document.getElementById('load').classList.add('hide');
+      setTimeout(() => document.getElementById('load').style.display = 'none', 1500);
+    }, 300);
     return;
   }
-  const[p,t]=LS[si++];lf.style.width=p+'%';lt.textContent=t;
-  setTimeout(loadStep,si===LS.length?500:180);
-}
-loadStep();
-
-// ── WEBGL SETUP ──
-const CV=document.getElementById('c');
-let W=window.innerWidth,H=window.innerHeight;
-CV.width=W;CV.height=H;
-const gl=CV.getContext('webgl')||CV.getContext('experimental-webgl');
-if(!gl){alert('WebGL not supported');throw 0;}
-gl.viewport(0,0,W,H);
-
-function compSh(type,src){
-  const s=gl.createShader(type);
-  gl.shaderSource(s,src);gl.compileShader(s);
-  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))
-    console.error('SHADER ERR:',gl.getShaderInfoLog(s));
-  return s;
-}
-function mkProg(vsrc,fsrc){
-  const p=gl.createProgram();
-  gl.attachShader(p,compSh(gl.VERTEX_SHADER,vsrc));
-  gl.attachShader(p,compSh(gl.FRAGMENT_SHADER,fsrc));
-  gl.linkProgram(p);
-  if(!gl.getProgramParameter(p,gl.LINK_STATUS))
-    console.error('PROG ERR:',gl.getProgramInfoLog(p));
-  return p;
-}
-function mkBuf(data,target,usage){
-  target=target||gl.ARRAY_BUFFER;
-  usage=usage||gl.STATIC_DRAW;
-  const b=gl.createBuffer();
-  gl.bindBuffer(target,b);
-  gl.bufferData(target,data,usage);
-  return b;
-}
-function bindAttr(prog,name,size,buffer){
-  const loc=gl.getAttribLocation(prog,name);
-  if(loc<0)return;
-  gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0);
-}
-function uLoc(prog,name){return gl.getUniformLocation(prog,name);}
-
-// ── FRAMEBUFFER ──
-function mkFB(w,h){
-  const fb=gl.createFramebuffer(),tex=gl.createTexture(),rb=gl.createRenderbuffer();
-  gl.bindTexture(gl.TEXTURE_2D,tex);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.bindRenderbuffer(gl.RENDERBUFFER,rb);
-  gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,w,h);
-  gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
-  gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,rb);
-  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-  return{fb:fb,tex:tex};
-}
-let FB=mkFB(W,H);
-
-// ── MATRIX ──
-function mat4persp(fov,asp,n,f){
-  const t=1.0/Math.tan(fov*0.5),r=new Float32Array(16);
-  r[0]=t/asp;r[5]=t;r[10]=(f+n)/(n-f);r[11]=-1;r[14]=2*f*n/(n-f);
-  return r;
-}
-function mat4lookAt(ex,ey,ez,tx,ty,tz){
-  let fx=tx-ex,fy=ty-ey,fz=tz-ez;
-  let l=Math.sqrt(fx*fx+fy*fy+fz*fz);fx/=l;fy/=l;fz/=l;
-  // right = cross(fwd, up(0,1,0)) = (fy*0-fz*1, fz*0-fx*0, fx*1-fy*0) = (-fz, 0, fx)
-  let rx=-fz,ry=0,rz=fx;
-  l=Math.sqrt(rx*rx+rz*rz);if(l<0.0001)l=1;rx/=l;rz/=l;
-  // up = cross(right, fwd)
-  const ux=ry*fz-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy-ry*fx;
-  return new Float32Array([
-    rx,ux,-fx,0,
-    ry,uy,-fy,0,
-    rz,uz,-fz,0,
-    -(rx*ex+ry*ey+rz*ez),-(ux*ex+uy*ey+uz*ez),-(-fx*ex-fy*ey-fz*ez),1
-  ]);
-}
-function mat4mul(a,b){
-  const r=new Float32Array(16);
-  for(let i=0;i<4;i++)for(let j=0;j<4;j++){
-    let s=0;for(let k=0;k<4;k++)s+=a[i*4+k]*b[k*4+j];r[i*4+j]=s;
-  }
-  return r;
+  const [p, t] = LSTEPS[lsi++];
+  lf.style.width = p + '%'; lt.textContent = t;
+  setTimeout(loadStep, lsi === LSTEPS.length ? 500 : 200);
 }
 
-// ── SHADERS ──
-
-// Background: grid + stars + atmosphere
-const BG_VS=
-'attribute vec2 a_pos;'+
-'varying vec2 v_uv;'+
-'void main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
-
-const BG_FS=
-'precision mediump float;'+
-'varying vec2 v_uv;'+
-'uniform float u_t;'+
-'uniform float u_sf;'+
-'float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5);}'+
-'void main(){'+
-'  vec2 uv=v_uv;'+
-'  vec3 col=vec3(0.0,0.0,0.025);'+
-// atmosphere
-'  col+=vec3(0.0,0.02,0.1)*smoothstep(0.9,0.2,uv.y);'+
-// horizon glow
-'  float hz=0.47+u_sf*0.09;'+
-'  float hg=smoothstep(hz+0.06,hz-0.01,uv.y)*smoothstep(hz-0.1,hz+0.01,uv.y);'+
-'  col+=vec3(0.0,0.12,0.45)*hg;'+
-// perspective grid
-'  if(uv.y<hz){'+
-'    float py=max(uv.y/hz,0.01);'+
-'    py=pow(py,0.28);'+
-'    float gx=fract((uv.x-0.5)/py*10.0+u_t*0.055);'+
-'    float gy=fract(py*14.0);'+
-'    float lx=step(0.95,gx)+step(0.95,1.0-gx);'+
-'    float ly=step(0.94,gy)+step(0.94,1.0-gy);'+
-'    float g=min(max(lx,ly),1.0);'+
-'    float fd=py*(1.0-py*py)*2.2;'+
-'    col+=vec3(0.0,0.18,0.6)*g*fd*0.35;'+
-'    col+=vec3(0.0,0.55,1.0)*g*g*fd*0.18;'+
-'  }'+
-// water below
-'  if(uv.y<hz-0.03){'+
-'    float r=1.0-uv.y/(hz-0.03);'+
-'    col+=vec3(0.0,0.04,0.18)*r*r;'+
-'    float w=sin(uv.x*38.0+u_t*1.1)*0.5+0.5;'+
-'    col+=vec3(0.0,0.08,0.3)*w*r*0.25;'+
-'  }'+
-// nebula
-'  float n1=fract(sin(dot(uv*2.3+u_t*0.02,vec2(12.9,78.2)))*437.5);'+
-'  float n2=fract(sin(dot(uv*4.5-u_t*0.015,vec2(39.3,21.8)))*823.4);'+
-'  col+=vec3(0.0,0.04,0.18)*n1*n2*0.6;'+
-// stars
-'  vec2 su=floor(uv*200.0)/200.0;'+
-'  float st=step(0.992,h(su));'+
-'  float tw=sin(u_t*1.5+h(su+0.1)*6.28)*0.4+0.6;'+
-'  col+=vec3(0.5,0.8,1.0)*st*tw*0.9;'+
-'  gl_FragColor=vec4(col,1.0);'+
-'}';
-
-// Bridge lines
-const BR_VS=
-'attribute vec3 a_pos;'+
-'attribute vec3 a_col;'+
-'attribute float a_emit;'+
-'attribute float a_morph;'+
-'uniform mat4 u_mvp;'+
-'uniform float u_t;'+
-'uniform float u_mf;'+
-'varying vec3 v_col;'+
-'varying float v_emit;'+
-'varying float v_depth;'+
-'void main(){'+
-'  vec3 p=a_pos;'+
-'  if(a_morph>0.5){'+
-'    vec3 tgt=vec3(p.x*1.8,p.y,0.0);'+
-'    p=mix(p,tgt,u_mf);'+
-'  }'+
-'  vec4 clip=u_mvp*vec4(p,1.0);'+
-'  v_col=a_col;v_emit=a_emit;v_depth=clip.z/clip.w;'+
-'  gl_Position=clip;'+
-'}';
-
-const BR_FS=
-'precision mediump float;'+
-'varying vec3 v_col;'+
-'varying float v_emit;'+
-'varying float v_depth;'+
-'uniform float u_t;'+
-'uniform float u_mf;'+
-'void main(){'+
-'  float df=clamp(1.0-v_depth*0.2,0.0,1.0);'+
-'  vec3 col=v_col*df;'+
-'  col+=v_col*v_emit*(0.6+0.4*sin(u_t*2.2+v_depth*5.0));'+
-'  col=mix(col,vec3(0.0,0.9,1.0)*df,u_mf*0.4);'+
-'  gl_FragColor=vec4(col,df*0.95);'+
-'}';
-
-// Particles
-const PT_VS=
-'attribute vec3 a_pos;'+
-'attribute vec3 a_col;'+
-'attribute float a_phase;'+
-'uniform mat4 u_mvp;'+
-'uniform float u_t;'+
-'uniform float u_mode;'+
-'uniform float u_show;'+
-'varying vec3 v_col;'+
-'varying float v_alpha;'+
-'void main(){'+
-'  vec3 p=a_pos;'+
-'  v_alpha=0.0;'+
-'  if(u_mode==1.0){'+
-'    float ph=fract(a_phase+u_t*0.08);'+
-'    p.y+=ph*80.0;'+
-'    p.x+=sin(ph*6.283+a_phase*9.0)*3.5;'+
-'    p.z+=cos(ph*6.283+a_phase*7.0)*3.5;'+
-'    v_alpha=sin(ph*3.14159)*0.6*u_show;'+
-'    gl_PointSize=2.0;'+
-'  } else {'+
-'    v_alpha=a_phase;'+
-'    gl_PointSize=3.0;'+
-'  }'+
-'  v_col=a_col;'+
-'  gl_Position=u_mvp*vec4(p,1.0);'+
-'}';
-
-const PT_FS=
-'precision mediump float;'+
-'varying vec3 v_col;'+
-'varying float v_alpha;'+
-'void main(){'+
-'  vec2 uv=gl_PointCoord*2.0-1.0;'+
-'  float d=dot(uv,uv);'+
-'  if(d>1.0)discard;'+
-'  gl_FragColor=vec4(v_col,v_alpha*(1.0-sqrt(d))*2.0);'+
-'}';
-
-// Post-processing
-const PO_VS=
-'attribute vec2 a_pos;'+
-'varying vec2 v_uv;'+
-'void main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
-
-const PO_FS=
-'precision mediump float;'+
-'uniform sampler2D u_tex;'+
-'uniform float u_t;'+
-'uniform float u_mf;'+
-'uniform vec2 u_res;'+
-'varying vec2 v_uv;'+
-'void main(){'+
-'  vec2 uv=v_uv;'+
-'  vec2 c=uv-0.5;'+
-// barrel distortion
-'  float k=1.0+dot(c,c)*0.08;'+
-'  vec2 duv=c*k+0.5;'+
-'  if(duv.x<0.0||duv.x>1.0||duv.y<0.0||duv.y>1.0){gl_FragColor=vec4(0.0,0.0,0.0,1.0);return;}'+
-// chromatic aberration
-'  float ca=0.003+length(c)*0.007;'+
-'  vec2 dir=normalize(c+0.0001)*ca;'+
-'  float r=texture2D(u_tex,duv+dir).r;'+
-'  float g=texture2D(u_tex,duv).g;'+
-'  float b=texture2D(u_tex,duv-dir).b;'+
-'  vec3 col=vec3(r,g,b);'+
-// simple bloom: sample 8 neighbours
-'  vec2 tx=2.0/u_res;'+
-'  vec3 bloom=vec3(0.0);'+
-'  bloom+=texture2D(u_tex,duv+vec2(tx.x,0.0)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(-tx.x,0.0)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(0.0,tx.y)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(0.0,-tx.y)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(tx.x,tx.y)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(-tx.x,tx.y)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(tx.x,-tx.y)).rgb;'+
-'  bloom+=texture2D(u_tex,duv+vec2(-tx.x,-tx.y)).rgb;'+
-'  bloom/=8.0;'+
-'  float lum=dot(bloom,vec3(0.299,0.587,0.114));'+
-'  col+=bloom*max(0.0,lum-0.2)*2.0;'+
-// morph tint green
-'  col=mix(col,vec3(col.r*0.5,col.g*1.2,col.b*0.6),u_mf*0.35);'+
-// colour grade
-'  col.r*=0.87;col.b*=1.05;'+
-// vignette
-'  col*=max(0.0,1.0-dot(c,c)*2.5);'+
-// grain
-'  float gr=fract(sin(dot(uv+u_t*0.01,vec2(127.1,311.7)))*43758.5)*0.022;'+
-'  col+=gr-0.011;'+
-// tone + gamma
-'  col=col/(col+0.5);'+
-'  col=pow(max(col,vec3(0.0)),vec3(0.45));'+
-'  gl_FragColor=vec4(col,1.0);'+
-'}';
-
-// Compile
-const bgProg=mkProg(BG_VS,BG_FS);
-const brProg=mkProg(BR_VS,BR_FS);
-const ptProg=mkProg(PT_VS,PT_FS);
-const poProg=mkProg(PO_VS,PO_FS);
-const quadBuf=mkBuf(new Float32Array([-1,-1,1,-1,-1,1,1,1]));
-
-// ── BRIDGE GEOMETRY ──
-const posArr=[],colArr=[],emArr=[],mrArr=[];
-
-function addLine(ax,ay,az,bx,by,bz,r,g,b,em,mr,segs){
-  segs=segs||1;
-  for(let s=0;s<segs;s++){
-    const t0=s/segs,t1=(s+1)/segs;
-    posArr.push(ax+(bx-ax)*t0,ay+(by-ay)*t0,az+(bz-az)*t0);
-    colArr.push(r,g,b);emArr.push(em);mrArr.push(mr);
-    posArr.push(ax+(bx-ax)*t1,ay+(by-ay)*t1,az+(bz-az)*t1);
-    colArr.push(r,g,b);emArr.push(em);mrArr.push(mr);
-  }
-}
-function addCat(ax,ay,az,bx,by,bz,sag,r,g,b,em){
-  for(let s=0;s<24;s++){
-    const t0=s/24,t1=(s+1)/24;
-    const cat=function(t){return Math.cosh((t-0.5)*4)*sag-Math.cosh(2)*sag;};
-    posArr.push(ax+(bx-ax)*t0,ay+(by-ay)*t0+cat(t0),az+(bz-az)*t0);
-    colArr.push(r,g,b);emArr.push(em);mrArr.push(0);
-    posArr.push(ax+(bx-ax)*t1,ay+(by-ay)*t1+cat(t1),az+(bz-az)*t1);
-    colArr.push(r,g,b);emArr.push(em);mrArr.push(0);
-  }
-}
-
-// deck
-for(var z=-8;z<=8;z+=16){addLine(-112,0,z,112,0,z,0,.92,1,0,0);}
-addLine(-112,0,0,112,0,0,.1,.2,.3,0,0);
-for(var z=-9.5;z<=9.5;z+=19){addLine(-112,0,z,112,0,z,.05,.12,.2,0,0);}
-for(var x=-108;x<=108;x+=12){
-  addLine(x,0,-8,x,0,8,.15,.22,.32,0,0);
-  addLine(x,-2.5,-5.5,x,-2.5,5.5,.05,.1,.18,0,0);
-  addLine(x,-2.5,-5.5,x,0,-8,.04,.1,.16,0,0);
-  addLine(x,-2.5,5.5,x,0,8,.04,.1,.16,0,0);
-}
-for(var z=-10;z<=10;z+=20){
-  addLine(-112,2.5,z,112,2.5,z,.08,.28,.38,0,0);
-  for(var x=-110;x<=110;x+=6){addLine(x,0,z,x,2.5,z,.05,.16,.24,0,0);}
-}
-for(var x=-106;x<112;x+=14){
-  addLine(x,.08,-1.8,x+7,.08,-1.8,.6,.78,.1,0,0);
-  addLine(x,.08,1.8,x+7,.08,1.8,.6,.78,.1,0,0);
-}
-// suspension
-for(var z=-7;z<=7;z+=14){addCat(-112,52,z,112,52,z,5,.75,.85,1,.2);}
-// hangers
-for(var x=-110;x<=110;x+=7){
-  var hy=Math.cosh((x/112-.5)*4)*5-Math.cosh(2)*5+52;
-  addLine(x,hy,-7,x,0,-7,.06,.12,.2,.06,0);
-  addLine(x,hy,7,x,0,7,.06,.12,.2,.06,0);
-}
-
-// pylons
-var PYLS=[{x:-68,h:56},{x:-26,h:74},{x:26,h:74},{x:68,h:56}];
-PYLS.forEach(function(p){
-  var x=p.x,h=p.h;
-  var corners=[[-1.8,-1.8],[-1.8,1.8],[1.8,-1.8],[1.8,1.8]];
-  corners.forEach(function(d){
-    addLine(x+d[0],0,d[1],x+d[0]*.5,h,d[1]*.5,0,.92,1,.4,0);
-  });
-  for(var y=0;y<=h;y+=9){
-    var tp=1-y/h*.38;
-    addLine(x-1.8*tp,y,-1.8*tp,x+1.8*tp,y,-1.8*tp,0,.92,1,.15,0);
-    addLine(x-1.8*tp,y,1.8*tp,x+1.8*tp,y,1.8*tp,0,.92,1,.15,0);
-    addLine(x-1.8*tp,y,-1.8*tp,x-1.8*tp,y,1.8*tp,0,.48,.62,.08,0);
-    addLine(x+1.8*tp,y,-1.8*tp,x+1.8*tp,y,1.8*tp,0,.48,.62,.08,0);
-    if(y+9<=h){var tp2=1-(y+9)/h*.38;addLine(x-1.8*tp,y,0,x+1.8*tp2,y+9,0,0,.32,.48,.06,0);}
-  }
-  addLine(x-7,h*.84,0,x+7,h*.84,0,0,.92,1,.8,0);
-  addLine(x,h,0,x,h+5,0,.5,.97,1,1.8,0);
+/* ============================================================
+   THREE.JS SCENE
+============================================================ */
+const W = window.innerWidth, H = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('c'),
+  antialias: true,
+  alpha: false,
 });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(W, H);
+renderer.setClearColor(0x000008);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
 
-// cable slots (morph=1)
-var CS=12,CDEFS=[];
-PYLS.forEach(function(p){
-  [-1,1].forEach(function(side){
-    for(var i=0;i<22;i++)CDEFS.push({x:p.x,h:p.h,ax:p.x+side*(3+i*5)});
-  });
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x000008, 0.004);
+
+const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 2000);
+camera.position.set(0, 35, 150);
+camera.lookAt(0, 10, 0);
+
+/* ── LIGHTS ── */
+scene.add(new THREE.AmbientLight(0x001133, 2));
+const cyan1 = new THREE.PointLight(0x00f0ff, 4, 200);
+cyan1.position.set(0, 80, 0);
+scene.add(cyan1);
+const cyan2 = new THREE.PointLight(0x0050ff, 3, 150);
+cyan2.position.set(-60, 40, 0);
+scene.add(cyan2);
+const cyan3 = new THREE.PointLight(0x00f0ff, 3, 150);
+cyan3.position.set(60, 40, 0);
+scene.add(cyan3);
+
+/* ── MATERIALS ── */
+const matCyan   = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.85 });
+const matDim    = new THREE.LineBasicMaterial({ color: 0x002233, transparent: true, opacity: 0.6 });
+const matWhite  = new THREE.LineBasicMaterial({ color: 0x8899aa, transparent: true, opacity: 0.5 });
+const matYellow = new THREE.LineBasicMaterial({ color: 0x99cc22, transparent: true, opacity: 0.7 });
+const matGlow   = new THREE.LineBasicMaterial({ color: 0x55ffff, transparent: true, opacity: 1.0 });
+
+function mkLine(points, mat) {
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+  return line;
+}
+function pt(x, y, z) { return new THREE.Vector3(x, y, z); }
+
+/* ── WATER PLANE ── */
+const waterGeo = new THREE.PlaneGeometry(600, 600, 50, 50);
+const waterMat = new THREE.MeshPhongMaterial({
+  color: 0x001122, shininess: 80, specular: 0x002244,
+  transparent: true, opacity: 0.88,
 });
-var TCAB=CDEFS.length,CSTART=posArr.length/3;
-for(var ci=0;ci<TCAB;ci++){
-  for(var s=0;s<CS;s++){
-    posArr.push(0,-800,0,0,-800,0);
-    colArr.push(0,0,0,0,0,0);
-    emArr.push(0,0);mrArr.push(1,1);
+const water = new THREE.Mesh(waterGeo, waterMat);
+water.rotation.x = -Math.PI / 2;
+water.position.y = -3;
+scene.add(water);
+const waterPos = waterGeo.attributes.position;
+const wOrig = [];
+for (let i = 0; i < waterPos.count; i++) wOrig.push(waterPos.getY(i));
+
+/* ── GRID on water ── */
+const gridHelper = new THREE.GridHelper(400, 40, 0x001144, 0x001133);
+gridHelper.position.y = -2.8;
+gridHelper.material.opacity = 0.2;
+gridHelper.material.transparent = true;
+scene.add(gridHelper);
+
+/* ── STARS ── */
+const starGeo = new THREE.BufferGeometry();
+const starVerts = [];
+for (let i = 0; i < 4000; i++) {
+  starVerts.push((Math.random() - 0.5) * 2000, Math.random() * 500 + 20, (Math.random() - 0.5) * 2000);
+}
+starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starVerts, 3));
+scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xaaccff, size: 0.6, transparent: true, opacity: 0.7 })));
+
+/* ── BRIDGE ── */
+const bridgeGroup = new THREE.Group();
+scene.add(bridgeGroup);
+
+// DECK
+for (const z of [-7, 7]) {
+  mkLine([pt(-115, 0, z), pt(115, 0, z)], matCyan).parent === scene && bridgeGroup.add(scene.children.pop());
+}
+// deck cross-beams
+for (let x = -112; x <= 112; x += 12) {
+  const geo = new THREE.BufferGeometry().setFromPoints([pt(x, 0, -7), pt(x, 0, 7)]);
+  bridgeGroup.add(new THREE.Line(geo, matDim));
+  // under-deck truss
+  const g2 = new THREE.BufferGeometry().setFromPoints([pt(x, 0, -7), pt(x, -2.5, 0), pt(x, 0, 7)]);
+  bridgeGroup.add(new THREE.Line(g2, matDim));
+}
+// road markings
+for (let x = -110; x < 115; x += 14) {
+  const g = new THREE.BufferGeometry().setFromPoints([pt(x, 0.1, -2), pt(x + 7, 0.1, -2)]);
+  bridgeGroup.add(new THREE.Line(g, matYellow));
+  const g2 = new THREE.BufferGeometry().setFromPoints([pt(x, 0.1, 2), pt(x + 7, 0.1, 2)]);
+  bridgeGroup.add(new THREE.Line(g2, matYellow));
+}
+// guardrails
+for (const z of [-9.5, 9.5]) {
+  const g = new THREE.BufferGeometry().setFromPoints([pt(-115, 2.5, z), pt(115, 2.5, z)]);
+  bridgeGroup.add(new THREE.Line(g, matDim));
+  for (let x = -112; x <= 112; x += 5) {
+    const gp = new THREE.BufferGeometry().setFromPoints([pt(x, 0, z), pt(x, 2.5, z)]);
+    bridgeGroup.add(new THREE.Line(gp, matDim));
   }
 }
 
-var lv=new Float32Array(posArr);
-var lc=new Float32Array(colArr);
-var le=new Float32Array(emArr);
-var lm=new Float32Array(mrArr);
-var lBuf=mkBuf(lv,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-var cBuf=mkBuf(lc,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-var eBuf=mkBuf(le);
-var mBuf=mkBuf(lm);
-var LC=lv.length/3;
+// MAIN SUSPENSION CABLES (catenary)
+function catenary(ax, ay, az, bx, by, bz, sag) {
+  const pts = [];
+  for (let i = 0; i <= 40; i++) {
+    const t = i / 40;
+    const x = ax + (bx - ax) * t;
+    const z = az + (bz - az) * t;
+    const cat = Math.cosh((t - 0.5) * 4) * sag - Math.cosh(2) * sag;
+    pts.push(pt(x, ay + (by - ay) * t + cat, z));
+  }
+  return pts;
+}
+for (const z of [-6, 6]) {
+  const g = new THREE.BufferGeometry().setFromPoints(catenary(-115, 52, z, 115, 52, z, 5));
+  bridgeGroup.add(new THREE.Line(g, matWhite));
+}
+// vertical hangers
+for (let x = -112; x <= 112; x += 7) {
+  const hy = Math.cosh((x / 115 - 0.5) * 4) * 5 - Math.cosh(2) * 5 + 52;
+  for (const z of [-6, 6]) {
+    const g = new THREE.BufferGeometry().setFromPoints([pt(x, hy, z), pt(x, 0, z)]);
+    bridgeGroup.add(new THREE.Line(g, matDim));
+  }
+}
 
-var visCab=0;
-function updateCab(frac){
-  var n=Math.min(Math.floor(frac*TCAB),TCAB);
-  if(n===visCab)return;
-  for(var ci=visCab;ci<n;ci++){
-    var cd=CDEFS[ci],ty=cd.h-2;
-    var base=(CSTART+ci*CS*2)*3;
-    var br=0.4+0.6*(1-ci/TCAB);
-    for(var s=0;s<CS;s++){
-      var t0=s/CS,t1=(s+1)/CS;
-      var sag0=Math.sin(t0*Math.PI)*-2.6;
-      var sag1=Math.sin(t1*Math.PI)*-2.6;
-      var i0=base+s*6;
-      lv[i0]=cd.x+(cd.ax-cd.x)*t0;lv[i0+1]=ty+(0-ty)*t0+sag0;lv[i0+2]=0;
-      lv[i0+3]=cd.x+(cd.ax-cd.x)*t1;lv[i0+4]=ty+(0-ty)*t1+sag1;lv[i0+5]=0;
-      lc[i0]=0;lc[i0+1]=br*.88;lc[i0+2]=br;
-      lc[i0+3]=0;lc[i0+4]=br*.88;lc[i0+5]=br;
+// PYLONS
+const PYLONS = [{ x: -68, h: 56 }, { x: -26, h: 74 }, { x: 26, h: 74 }, { x: 68, h: 56 }];
+const pylonGroups = [];
+
+PYLONS.forEach(({ x, h }) => {
+  const g = new THREE.Group();
+  // 4 corner legs (tapered)
+  [[-2, -2], [-2, 2], [2, -2], [2, 2]].forEach(([dx, dz]) => {
+    const geo = new THREE.BufferGeometry().setFromPoints([pt(x + dx, 0, dz), pt(x + dx * 0.5, h, dz * 0.5)]);
+    g.add(new THREE.Line(geo, matCyan));
+  });
+  // horizontal rings every 9 units
+  for (let y = 0; y <= h; y += 9) {
+    const tp = 1 - (y / h) * 0.38;
+    const geo = new THREE.BufferGeometry().setFromPoints([
+      pt(x - 2 * tp, y, -2 * tp), pt(x + 2 * tp, y, -2 * tp),
+      pt(x + 2 * tp, y, 2 * tp), pt(x - 2 * tp, y, 2 * tp),
+      pt(x - 2 * tp, y, -2 * tp),
+    ]);
+    g.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.3 })));
+    // diagonals
+    if (y + 9 <= h) {
+      const tp2 = 1 - ((y + 9) / h) * 0.38;
+      const gd = new THREE.BufferGeometry().setFromPoints([pt(x - 2 * tp, y, 0), pt(x + 2 * tp2, y + 9, 0)]);
+      g.add(new THREE.Line(gd, new THREE.LineBasicMaterial({ color: 0x004466, transparent: true, opacity: 0.4 })));
     }
   }
-  visCab=n;
-  gl.bindBuffer(gl.ARRAY_BUFFER,lBuf);gl.bufferData(gl.ARRAY_BUFFER,lv,gl.DYNAMIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,cBuf);gl.bufferData(gl.ARRAY_BUFFER,lc,gl.DYNAMIC_DRAW);
-}
+  // cap beam
+  const cap = new THREE.BufferGeometry().setFromPoints([pt(x - 7, h * 0.84, 0), pt(x + 7, h * 0.84, 0)]);
+  g.add(new THREE.Line(cap, matCyan));
+  // tip glow
+  const tip = new THREE.BufferGeometry().setFromPoints([pt(x, h, 0), pt(x, h + 5, 0)]);
+  g.add(new THREE.Line(tip, matGlow));
+  // tip sphere
+  const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1.2, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0x00f0ff })
+  );
+  sphere.position.set(x, h + 1, 0);
+  g.add(sphere);
+  // point light at tip
+  const pl = new THREE.PointLight(0x00f0ff, 2, 80);
+  pl.position.set(x, h + 2, 0);
+  g.add(pl);
 
-// ── PARTICLES ──
-var PC=1000;
-var ppArr=new Float32Array(PC*3);
-var pcArr=new Float32Array(PC*3);
-var phArr=new Float32Array(PC);
-for(var i=0;i<PC;i++){
-  ppArr[i*3]=(Math.random()-.5)*280;
-  ppArr[i*3+1]=Math.random()*70;
-  ppArr[i*3+2]=(Math.random()-.5)*70;
-  var t=Math.random();
-  if(t<.5){pcArr[i*3]=0;pcArr[i*3+1]=.85;pcArr[i*3+2]=1;}
-  else if(t<.75){pcArr[i*3]=0;pcArr[i*3+1]=.28;pcArr[i*3+2]=1;}
-  else{pcArr[i*3]=.4;pcArr[i*3+1]=.9;pcArr[i*3+2]=.4;}
-  phArr[i]=Math.random();
-}
-var ppBuf=mkBuf(ppArr),pcBuf=mkBuf(pcArr),phBuf=mkBuf(phArr);
+  g.scale.y = 0; // start collapsed, animate on build
+  scene.add(g);
+  pylonGroups.push({ group: g, h });
+});
 
-// sparks
-var SC2=150;
-var spArr=new Float32Array(SC2*3);for(var i=0;i<SC2*3;i++)spArr[i]=-999;
-var scArr=new Float32Array(SC2*3);
-var sphArr=new Float32Array(SC2);
-var svArr=new Float32Array(SC2*3);
-var slArr=new Float32Array(SC2);
-var spBuf=mkBuf(spArr,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-var scBuf=mkBuf(scArr,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-var sphBuf=mkBuf(sphArr,gl.ARRAY_BUFFER,gl.DYNAMIC_DRAW);
-var sparkHead=0;
-function addSpark(x,y,z){
-  var i=sparkHead%SC2;sparkHead++;
-  spArr[i*3]=x+(Math.random()-.5)*2;spArr[i*3+1]=y;spArr[i*3+2]=z+(Math.random()-.5)*2;
-  svArr[i*3]=(Math.random()-.5)*1.5;svArr[i*3+1]=Math.random()*3.5+.5;svArr[i*3+2]=(Math.random()-.5)*1.5;
-  slArr[i]=1;
-}
-function tickSparks(){
-  for(var i=0;i<SC2;i++){
-    if(slArr[i]<=0){spArr[i*3+1]=-500;continue;}
-    slArr[i]-=.028;svArr[i*3+1]-=.09;
-    spArr[i*3]+=svArr[i*3];spArr[i*3+1]+=svArr[i*3+1];spArr[i*3+2]+=svArr[i*3+2];
-    sphArr[i]=slArr[i];
-    scArr[i*3]=slArr[i];scArr[i*3+1]=slArr[i]*.5;scArr[i*3+2]=0;
+// STAY CABLES — added progressively
+const cableDefs = [];
+PYLONS.forEach(({ x, h }) => {
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 22; i++) {
+      cableDefs.push({ x, h, ax: x + side * (3 + i * 5) });
+    }
   }
-  gl.bindBuffer(gl.ARRAY_BUFFER,spBuf);gl.bufferData(gl.ARRAY_BUFFER,spArr,gl.DYNAMIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,scBuf);gl.bufferData(gl.ARRAY_BUFFER,scArr,gl.DYNAMIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER,sphBuf);gl.bufferData(gl.ARRAY_BUFFER,sphArr,gl.DYNAMIC_DRAW);
+});
+const cableLines = [];
+let cablesBuilt = 0;
+
+function buildCable(def) {
+  const { x, h, ax } = def;
+  const topY = h - 2;
+  const pts = [];
+  for (let s = 0; s <= 12; s++) {
+    const t = s / 12;
+    const sag = Math.sin(t * Math.PI) * -2.5;
+    pts.push(pt(x + (ax - x) * t, topY + (0 - topY) * t + sag, 0));
+  }
+  const bright = 0.4 + 0.6 * (1 - cablesBuilt / cableDefs.length);
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = new THREE.LineBasicMaterial({
+    color: new THREE.Color(0, bright * 0.88, bright),
+    transparent: true, opacity: 0.7,
+  });
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+  cableLines.push(line);
+  cablesBuilt++;
 }
 
-// ── CAMERA PATH ──
-var CPATH=[
-  {e:[0,55,155],t:[0,10,0]},
-  {e:[-90,38,95],t:[0,20,0]},
-  {e:[-30,18,28],t:[20,5,0]},
-  {e:[0,8,8],t:[60,2,0]},
-  {e:[0,22,48],t:[0,15,0]},
-  {e:[0,65,125],t:[0,8,0]},
-  {e:[0,72,135],t:[0,5,0]},
+/* ── AMBIENT PARTICLES ── */
+const PCOUNT = 1800;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PCOUNT * 3);
+for (let i = 0; i < PCOUNT; i++) {
+  pPos[i * 3] = (Math.random() - 0.5) * 300;
+  pPos[i * 3 + 1] = Math.random() * 70;
+  pPos[i * 3 + 2] = (Math.random() - 0.5) * 80;
+}
+pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
+const pMat = new THREE.PointsMaterial({ color: 0x00aaff, size: 0.5, transparent: true, opacity: 0.5 });
+scene.add(new THREE.Points(pGeo, pMat));
+
+/* ── CONSTRUCTION SPARKS ── */
+const SCOUNT = 300;
+const sGeo = new THREE.BufferGeometry();
+const sPos = new Float32Array(SCOUNT * 3);
+const sVel = Array.from({ length: SCOUNT }, () => ({ x: 0, y: 0, z: 0, life: 0 }));
+for (let i = 0; i < SCOUNT * 3; i++) sPos[i] = -9999;
+sGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
+const sMat = new THREE.PointsMaterial({ color: 0xff8800, size: 0.5, transparent: true, opacity: 0.9 });
+const sparks = new THREE.Points(sGeo, sMat);
+scene.add(sparks);
+let sparkHead = 0;
+function addSpark(x, y, z) {
+  const i = sparkHead % SCOUNT; sparkHead++;
+  sPos[i * 3] = x + (Math.random() - 0.5) * 2;
+  sPos[i * 3 + 1] = y;
+  sPos[i * 3 + 2] = z + (Math.random() - 0.5) * 2;
+  sVel[i] = { x: (Math.random() - 0.5) * 1.5, y: Math.random() * 3.5 + 0.5, z: (Math.random() - 0.5) * 1.5, life: 1 };
+}
+
+/* ============================================================
+   CAMERA PATH  (scroll 0→1)
+============================================================ */
+const CAM_PATH = [
+  { t: 0,    pos: new THREE.Vector3(0,   35,  150), look: new THREE.Vector3(0,  10, 0) },
+  { t: 0.15, pos: new THREE.Vector3(-80, 30,   90), look: new THREE.Vector3(0,  18, 0) },
+  { t: 0.30, pos: new THREE.Vector3(-20, 12,   22), look: new THREE.Vector3(30,  4, 0) },
+  { t: 0.45, pos: new THREE.Vector3(0,    4,    5), look: new THREE.Vector3(70,  1, 0) },
+  { t: 0.60, pos: new THREE.Vector3(0,   20,   35), look: new THREE.Vector3(0,  35, 0) },
+  { t: 0.75, pos: new THREE.Vector3(30,  55,   80), look: new THREE.Vector3(0,  15, 0) },
+  { t: 0.88, pos: new THREE.Vector3(0,   65,  110), look: new THREE.Vector3(0,   8, 0) },
+  { t: 1.0,  pos: new THREE.Vector3(0,   70,  120), look: new THREE.Vector3(0,   5, 0) },
 ];
-function sampleCam(sf){
-  var n=CPATH.length-1;
-  var fi=sf*n,idx=Math.min(Math.floor(fi),n-1),tf=fi-idx;
-  var ease=function(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;};
-  var et=ease(tf),a=CPATH[idx],b=CPATH[idx+1];
-  return{
-    e:a.e.map(function(v,k){return v+(b.e[k]-v)*et;}),
-    t:a.t.map(function(v,k){return v+(b.t[k]-v)*et;})
+
+function easeCubic(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+function sampleCamera(sf) {
+  let i = 0;
+  while (i < CAM_PATH.length - 2 && CAM_PATH[i + 1].t <= sf) i++;
+  const a = CAM_PATH[i], b = CAM_PATH[i + 1];
+  const range = b.t - a.t;
+  const local = range < 0.0001 ? 0 : (sf - a.t) / range;
+  const et = easeCubic(Math.max(0, Math.min(1, local)));
+  return {
+    pos: new THREE.Vector3().lerpVectors(a.pos, b.pos, et),
+    look: new THREE.Vector3().lerpVectors(a.look, b.look, et),
   };
 }
 
-// ── SCENE LABELS ──
-function updateUI(sf){
-  var scenes=[
-    {id:'l0',from:0,to:.22},
-    {id:'l1',from:.18,to:.42},
-    {id:'l2',from:.38,to:.67},
-    {id:'l3',from:.62,to:.88},
-  ];
-  scenes.forEach(function(s){
-    document.getElementById(s.id).classList.toggle('on',sf>=s.from&&sf<=s.to);
+/* ============================================================
+   SCENE LABELS + SCROLL
+============================================================ */
+const SCENES = [
+  { id: 's0', from: 0,    to: 0.20 },
+  { id: 's1', from: 0.15, to: 0.40 },
+  { id: 's2', from: 0.35, to: 0.58 },
+  { id: 's3', from: 0.52, to: 0.72 },
+  { id: 's4', from: 0.68, to: 0.88 },
+];
+
+function getScrollFrac() {
+  const maxScroll = document.getElementById('page').clientHeight - window.innerHeight;
+  return Math.max(0, Math.min(1, window.scrollY / maxScroll));
+}
+
+function updateUI(sf) {
+  // progress bar
+  document.getElementById('prog-bar').style.width = (sf * 100) + '%';
+  document.getElementById('hprog').textContent = Math.round(sf * 100) + '%';
+  // scene labels
+  SCENES.forEach(({ id, from, to }) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('visible', sf >= from && sf <= to);
   });
-  document.getElementById('proj').classList.toggle('show',sf>.82);
-  document.getElementById('sh').style.opacity=sf<.04?'1':'0';
-  document.getElementById('hp').textContent=Math.round(sf*100)+'%';
+  // scroll hint
+  document.getElementById('sh').style.opacity = sf < 0.04 ? '1' : '0';
+  // projects panel
+  document.getElementById('proj-panel').classList.toggle('visible', sf > 0.85);
 }
 
-// ── RENDER LOOP ──
-var PROJ=mat4persp(Math.PI/3.2,W/H,.5,1500);
-var time=0,last=performance.now(),build=0,morphFrac=0;
-var pylBuild=[0,0,0,0];
-var fps=0,fpsC=0,fpsT=0;
+/* ============================================================
+   BUILD STATE
+============================================================ */
+let buildFrac = 0;
+const pylonBuild = [0, 0, 0, 0];
 
-function getSF(){
-  var max=document.getElementById('scroller').clientHeight-window.innerHeight;
-  return Math.max(0,Math.min(window.scrollY/max,1));
-}
+/* ============================================================
+   RENDER LOOP
+============================================================ */
+let time = 0, lastT = performance.now(), fps = 0, fpsC = 0, fpsAcc = 0;
+const clock = new THREE.Clock();
 
-function frame(now){
-  requestAnimationFrame(frame);
-  var dt=Math.min((now-last)/1000,.05);last=now;time+=dt;
+// Morph cable colours to "code green"
+let morphFrac = 0;
 
-  fpsC++;fpsT+=dt;
-  if(fpsT>=.6){fps=Math.round(fpsC/fpsT);fpsC=0;fpsT=0;document.getElementById('hf').textContent=fps+' FPS';}
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  time += dt;
 
-  var sf=getSF();
+  // FPS
+  fpsC++; fpsAcc += dt;
+  if (fpsAcc >= 0.6) {
+    fps = Math.round(fpsC / fpsAcc); fpsC = 0; fpsAcc = 0;
+    document.getElementById('hfps').textContent = fps + ' FPS';
+  }
+
+  const sf = getScrollFrac();
   updateUI(sf);
 
-  build=Math.min(build+dt*.05,1);
-  updateCab(Math.max(0,(build-.28)/.72)*Math.min(1,sf*4+.3));
-  tickSparks();
+  // Build progress
+  buildFrac = Math.min(buildFrac + dt * 0.055, 1);
 
-  PYLS.forEach(function(p,i){
-    var s=.04+i*.1,e=s+.22;
-    pylBuild[i]=Math.max(0,Math.min(1,(build-s)/(e-s)));
-    if(pylBuild[i]>.05&&pylBuild[i]<.95&&Math.random()<.1)
-      addSpark(p.x,p.h*pylBuild[i]-1,(Math.random()-.5)*3);
+  // Pylon grow
+  pylonGroups.forEach(({ group }, i) => {
+    const s = 0.05 + i * 0.11, e = s + 0.24;
+    const pb = Math.max(0, Math.min(1, (buildFrac - s) / (e - s)));
+    pylonBuild[i] = pb;
+    group.scale.y = pb;
+    if (pb > 0.05 && pb < 0.95 && Math.random() < 0.15) {
+      const px = PYLONS[i].x;
+      addSpark(px, PYLONS[i].h * pb - 1, (Math.random() - 0.5) * 3);
+    }
   });
 
-  morphFrac=Math.max(0,Math.min(1,(sf-.65)/.2));
+  // Cable build
+  const cableFrac = Math.max(0, (buildFrac - 0.32) / 0.68) * Math.min(1, sf * 5 + 0.3);
+  const targetCables = Math.floor(cableFrac * cableDefs.length);
+  while (cablesBuilt < targetCables && cablesBuilt < cableDefs.length) {
+    buildCable(cableDefs[cablesBuilt]);
+  }
 
-  var cam=sampleCam(sf);
-  cam.e[0]+=Math.sin(time*.28)*1.8;
-  cam.e[1]+=Math.sin(time*.19)*.9;
-  var VIEW=mat4lookAt(cam.e[0],cam.e[1],cam.e[2],cam.t[0],cam.t[1],cam.t[2]);
-  var MVP=mat4mul(PROJ,VIEW);
-
-  // ── RENDER TO FRAMEBUFFER ──
-  gl.bindFramebuffer(gl.FRAMEBUFFER,FB.fb);
-  gl.viewport(0,0,W,H);
-  gl.clearColor(0,0,.02,1);
-  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
-
-  // Background
-  gl.disable(gl.DEPTH_TEST);
-  gl.useProgram(bgProg);
-  gl.uniform1f(uLoc(bgProg,'u_t'),time);
-  gl.uniform1f(uLoc(bgProg,'u_sf'),sf);
-  bindAttr(bgProg,'a_pos',2,quadBuf);
-  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-  gl.enable(gl.DEPTH_TEST);
-
-  // Bridge
-  gl.useProgram(brProg);
-  gl.uniformMatrix4fv(uLoc(brProg,'u_mvp'),false,MVP);
-  gl.uniform1f(uLoc(brProg,'u_t'),time);
-  gl.uniform1f(uLoc(brProg,'u_mf'),morphFrac);
-  bindAttr(brProg,'a_pos',3,lBuf);
-  bindAttr(brProg,'a_col',3,cBuf);
-  bindAttr(brProg,'a_emit',1,eBuf);
-  bindAttr(brProg,'a_morph',1,mBuf);
-  gl.drawArrays(gl.LINES,0,LC);
-
-  // Particles
-  gl.useProgram(ptProg);
-  gl.uniformMatrix4fv(uLoc(ptProg,'u_mvp'),false,MVP);
-  gl.uniform1f(uLoc(ptProg,'u_t'),time);
-  gl.uniform1f(uLoc(ptProg,'u_mode'),1);
-  gl.uniform1f(uLoc(ptProg,'u_show'),sf*.5+.2);
-  bindAttr(ptProg,'a_pos',3,ppBuf);
-  bindAttr(ptProg,'a_col',3,pcBuf);
-  bindAttr(ptProg,'a_phase',1,phBuf);
-  gl.drawArrays(gl.POINTS,0,PC);
+  // Cable morph (sf 0.65→0.85 → green code tint)
+  morphFrac = Math.max(0, Math.min(1, (sf - 0.65) / 0.2));
+  cableLines.forEach(line => {
+    const col = new THREE.Color().lerpColors(
+      new THREE.Color(0x00e0ff),
+      new THREE.Color(0x00ff44),
+      morphFrac
+    );
+    line.material.color = col;
+    line.material.opacity = 0.6 + morphFrac * 0.3;
+  });
 
   // Sparks
-  gl.uniform1f(uLoc(ptProg,'u_mode'),2);
-  gl.uniform1f(uLoc(ptProg,'u_show'),1);
-  bindAttr(ptProg,'a_pos',3,spBuf);
-  bindAttr(ptProg,'a_col',3,scBuf);
-  bindAttr(ptProg,'a_phase',1,sphBuf);
-  gl.drawArrays(gl.POINTS,0,SC2);
+  for (let i = 0; i < SCOUNT; i++) {
+    const sv = sVel[i];
+    if (sv.life <= 0) { sPos[i * 3 + 1] = -9999; continue; }
+    sv.life -= 0.028;
+    sv.y -= 0.09;
+    sPos[i * 3] += sv.x;
+    sPos[i * 3 + 1] += sv.y;
+    sPos[i * 3 + 2] += sv.z;
+  }
+  sGeo.attributes.position.needsUpdate = true;
 
-  // ── POST → SCREEN ──
-  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-  gl.viewport(0,0,W,H);
-  gl.disable(gl.DEPTH_TEST);
-  gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.useProgram(poProg);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D,FB.tex);
-  gl.uniform1i(uLoc(poProg,'u_tex'),0);
-  gl.uniform1f(uLoc(poProg,'u_t'),time);
-  gl.uniform1f(uLoc(poProg,'u_mf'),morphFrac);
-  gl.uniform2f(uLoc(poProg,'u_res'),W,H);
-  bindAttr(poProg,'a_pos',2,quadBuf);
-  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  // Water waves
+  for (let i = 0; i < waterPos.count; i++) {
+    const x = waterGeo.attributes.position.getX(i);
+    const z = waterGeo.attributes.position.getZ(i);
+    waterPos.setY(i, wOrig[i] + Math.sin(x * 0.04 + time * 0.6) * 0.9 + Math.cos(z * 0.035 + time * 0.45) * 0.7);
+  }
+  waterPos.needsUpdate = true;
+  waterGeo.computeVertexNormals();
+
+  // Cyan lights pulse
+  cyan1.intensity = 3 + Math.sin(time * 1.8) * 1;
+  cyan1.position.set(Math.sin(time * 0.3) * 40, 80, Math.cos(time * 0.3) * 20);
+
+  // Camera from scroll path + breathing
+  const cam = sampleCamera(sf);
+  cam.pos.x += Math.sin(time * 0.28) * 2;
+  cam.pos.y += Math.sin(time * 0.19) * 1;
+  camera.position.lerp(cam.pos, 0.05);
+  const lookTarget = new THREE.Vector3().lerp(cam.look, 0.05);
+  camera.lookAt(cam.look);
+
+  // Grid slow rotation
+  gridHelper.rotation.y += 0.0005;
+
+  renderer.render(scene, camera);
 }
-requestAnimationFrame(frame);
 
-window.addEventListener('resize',function(){
-  W=window.innerWidth;H=window.innerHeight;
-  CV.width=W;CV.height=H;
-  gl.viewport(0,0,W,H);
-  FB=mkFB(W,H);
+/* ============================================================
+   START
+============================================================ */
+loadStep();
+setTimeout(animate, 1800); // start after loading
+
+window.addEventListener('resize', () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  camera.aspect = W / H;
+  camera.updateProjectionMatrix();
+  renderer.setSize(W, H);
 });
 </script>
 </body>
